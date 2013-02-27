@@ -46,7 +46,7 @@
 // - Interrupts < 32, except for int 3, are not supported
 // - No instructions modifiers/prefixes, other than REP, have been implemented
 // - No 3 or more operands instructions have been implemented
-// - Not all Jcc instructions have been implemented
+// - Not all CMOVcc/Jcc/SETcc instructions have been implemented
 // - Neither protected mode nor virtual mode has been implemented
 //------------------------------------------------------------------------------------
 // I tried to be as faithful as possible to the manuals from Intel:
@@ -1487,6 +1487,7 @@ Asm86Emulator.prototype = {
 		SRC16_32_ONLY: "É permitido utilizar apenas registradores de 16 ou 32 bits como operando de origem",
 		ANY_DST8_16_32_ONLY: "É permitido utilizar apenas operandos de 8, 16 ou 32 bits como destino",
 		ANY_SRC8_16_32_ONLY: "É permitido utilizar apenas operandos de 8, 16 ou 32 bits como origem",
+		ANY_DST8_ONLY: "É permitido utilizar apenas operandos de 8 bits como destino",
 		ANY_DST16_32_ONLY: "É permitido utilizar apenas operandos de 16 ou 32 bits como destino",
 		NO_EIP: "Não é possível acessar o registrador EIP diretamente",
 		REG32_ONLY: "É permitido utilizar apenas registradores de 32 bits como operando",
@@ -1600,6 +1601,20 @@ Asm86Emulator.prototype = {
 		else if (!op1.size) op1.changeSize(op2.size);
 		else if (!op2.size) op2.changeSize(op1.size);
 		else if (op1.size !== op2.size) return Asm86Emulator.prototype.MESSAGES.DST_SRC_SIZE_MISMATCH;
+		return null;
+	},
+	_validateCMOV: function (op1, op2) {
+		var r = Asm86Emulator.prototype._validate.call(this, op1, op2);
+		if (r) return r;
+		if (op1.size !== 2 && op1.size !== 4) return Asm86Emulator.prototype.MESSAGES.DST16_32_ONLY;
+		if (!op2.size) op2.changeSize(op1.size);
+		if (op1.size !== op2.size) return Asm86Emulator.prototype.MESSAGES.DST_SRC_SIZE_MISMATCH;
+		return null;
+	},
+	_validateSET: function (op1, op2) {
+		var r = Asm86Emulator.prototype._validate.call(this, op1, op2);
+		if (r) return r;
+		if (op1.size !== 1) return Asm86Emulator.prototype.MESSAGES.ANY_DST8_ONLY;
 		return null;
 	},
 	_validateBT: function (op1, op2) {
@@ -2589,6 +2604,16 @@ Asm86Emulator.prototype.OP = {
 			return undefined;
 		}
 	},
+	js: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_LABELREF,
+		validate: Asm86Emulator.prototype._validate,
+		exec: function (ctx, op1) {
+			if (ctx.flagSign)
+				ctx.nextInstruction = op1.label.instructionIndex;
+			return undefined;
+		}
+	},
 	jns: {
 		operandCount: 1,
 		op1Type: Asm86Emulator.prototype.TYPE_LABELREF,
@@ -3300,6 +3325,286 @@ Asm86Emulator.prototype.OP = {
 			op1.set(0xFFFFFFFF * Math.random());
 		}
 	},
+	cmovz: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagZ)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovnz: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && !ctx.flagZ)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovae: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && !ctx.flagCarry)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmova: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && !ctx.flagCarry && !ctx.flagZ)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovbe: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && (ctx.flagCarry || ctx.flagZ))
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovb: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagCarry)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovge: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagSign === ctx.flagOv)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovg: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagSign === ctx.flagOv && !ctx.flagZ)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovle: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && (ctx.flagSign !== ctx.flagOv || ctx.flagZ))
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovl: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagSign !== ctx.flagOv)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovs: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagSign)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovns: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && !ctx.flagSign)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovo: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && ctx.flagOv)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	cmovno: {
+		operandCount: 2,
+		op1Type: Asm86Emulator.prototype.TYPE_REG,
+		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateCMOV,
+		exec: function (ctx, op1, op2) {
+			var s;
+			if ((s = op2.get()) !== null && !ctx.flagOv)
+				op1.set(s);
+			return undefined;
+		}
+	},
+	setz: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(ctx.flagZ ? 1 : 0);
+		}
+	},
+	setnz: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(!ctx.flagZ ? 1 : 0);
+		}
+	},
+	setae: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(!ctx.flagCarry ? 1 : 0);
+		}
+	},
+	seta: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((!ctx.flagCarry && !ctx.flagZ) ? 1 : 0);
+		}
+	},
+	setbe: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((ctx.flagCarry || ctx.flagZ) ? 1 : 0);
+		}
+	},
+	setb: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(ctx.flagCarry ? 1 : 0);
+		}
+	},
+	setge: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((ctx.flagSign === ctx.flagOv) ? 1 : 0);
+		}
+	},
+	setg: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((ctx.flagSign === ctx.flagOv && !ctx.flagZ) ? 1 : 0);
+		}
+	},
+	setle: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((ctx.flagSign !== ctx.flagOv || ctx.flagZ) ? 1 : 0);
+		}
+	},
+	setl: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set((ctx.flagSign !== ctx.flagOv) ? 1 : 0);
+		}
+	},
+	sets: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(ctx.flagSign ? 1 : 0);
+		}
+	},
+	setns: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(!ctx.flagSign ? 1 : 0);
+		}
+	},
+	seto: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(ctx.flagOv ? 1 : 0);
+		}
+	},
+	setno: {
+		operandCount: 1,
+		op1Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_MEM,
+		validate: Asm86Emulator.prototype._validateSET,
+		exec: function (ctx, op1) {
+			return op1.set(!ctx.flagOv ? 1 : 0);
+		}
+	},
 	xsave: {
 		operandCount: 1,
 		op1Type: Asm86Emulator.prototype.TYPE_MEM, //this instruction is FAR from the documentation... it requires an address pointing to at least 36 bytes
@@ -3339,6 +3644,18 @@ Asm86Emulator.prototype.OP = {
 		}
 	}
 };
+Asm86Emulator.prototype.OP.cmove = Asm86Emulator.prototype.OP.cmovz;
+Asm86Emulator.prototype.OP.cmovne = Asm86Emulator.prototype.OP.cmovnz;
+Asm86Emulator.prototype.OP.cmovnb = Asm86Emulator.prototype.OP.cmovae;
+Asm86Emulator.prototype.OP.cmovnbe = Asm86Emulator.prototype.OP.cmova;
+Asm86Emulator.prototype.OP.cmovna = Asm86Emulator.prototype.OP.cmovbe;
+Asm86Emulator.prototype.OP.cmovnae = Asm86Emulator.prototype.OP.cmovb;
+Asm86Emulator.prototype.OP.cmovnl = Asm86Emulator.prototype.OP.cmovge;
+Asm86Emulator.prototype.OP.cmovnle = Asm86Emulator.prototype.OP.cmovg;
+Asm86Emulator.prototype.OP.cmovng = Asm86Emulator.prototype.OP.cmovle;
+Asm86Emulator.prototype.OP.cmovnge = Asm86Emulator.prototype.OP.cmovl;
+Asm86Emulator.prototype.OP.cmovc = Asm86Emulator.prototype.OP.cmovb;
+Asm86Emulator.prototype.OP.cmovnc = Asm86Emulator.prototype.OP.cmovae;
 Asm86Emulator.prototype.OP.je = Asm86Emulator.prototype.OP.jz;
 Asm86Emulator.prototype.OP.jne = Asm86Emulator.prototype.OP.jnz;
 Asm86Emulator.prototype.OP.jnb = Asm86Emulator.prototype.OP.jae;
@@ -3351,6 +3668,18 @@ Asm86Emulator.prototype.OP.jng = Asm86Emulator.prototype.OP.jle;
 Asm86Emulator.prototype.OP.jnge = Asm86Emulator.prototype.OP.jl;
 Asm86Emulator.prototype.OP.jc = Asm86Emulator.prototype.OP.jb;
 Asm86Emulator.prototype.OP.jnc = Asm86Emulator.prototype.OP.jae;
+Asm86Emulator.prototype.OP.sete = Asm86Emulator.prototype.OP.setz;
+Asm86Emulator.prototype.OP.setne = Asm86Emulator.prototype.OP.setnz;
+Asm86Emulator.prototype.OP.setnb = Asm86Emulator.prototype.OP.setae;
+Asm86Emulator.prototype.OP.setnbe = Asm86Emulator.prototype.OP.seta;
+Asm86Emulator.prototype.OP.setna = Asm86Emulator.prototype.OP.setbe;
+Asm86Emulator.prototype.OP.setnae = Asm86Emulator.prototype.OP.setb;
+Asm86Emulator.prototype.OP.setnl = Asm86Emulator.prototype.OP.setge;
+Asm86Emulator.prototype.OP.setnle = Asm86Emulator.prototype.OP.setg;
+Asm86Emulator.prototype.OP.setng = Asm86Emulator.prototype.OP.setle;
+Asm86Emulator.prototype.OP.setnge = Asm86Emulator.prototype.OP.setl;
+Asm86Emulator.prototype.OP.setc = Asm86Emulator.prototype.OP.setb;
+Asm86Emulator.prototype.OP.setnc = Asm86Emulator.prototype.OP.setae;
 Asm86Emulator.prototype.OP.loopz = Asm86Emulator.prototype.OP.loope;
 Asm86Emulator.prototype.OP.loopnz = Asm86Emulator.prototype.OP.loopne;
 Asm86Emulator.prototype.OP.sal = Asm86Emulator.prototype.OP.shl;
