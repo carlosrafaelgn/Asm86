@@ -18,7 +18,7 @@ Limitations:
 - Interrupts < 32, except for int 3, are not supported
 - No instructions modifiers/prefixes, other than REP, have been implemented
 - No 3 or more operands instructions have been implemented
-- Not all Jcc instructions have been implemented
+- Not all CMOVcc/Jcc/SETcc instructions have been implemented
 - Neither protected mode nor virtual mode has been implemented
 
 I tried to be as faithful as possible to the manuals from Intel (although Volume 3 was not too much used):
