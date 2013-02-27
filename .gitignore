@@ -1,0 +1,7 @@
+*.png
+*.bak
+codemirror.css
+codemirror.js
+codemirror-active-line.js
+codemirrorAsm86.js
+index.html
