@@ -262,7 +262,7 @@ function Asm86EmulatorContext(errorNotificationFunction, memorySize, inputFuncti
 		}
 		switch (size) {
 			case 1:
-				this.memory.setInt8(address - 1024, value);
+				this.memory.setUint8(address - 1024, value);
 				return true;
 			case 2:
 				this.memory.setUint16(address - 1024, value, true);
@@ -273,6 +273,39 @@ function Asm86EmulatorContext(errorNotificationFunction, memorySize, inputFuncti
 		}
 		this.errorOccurred = true;
 		errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_WRITE_SIZE + size.toString());
+		return false;
+	};
+	this.dbgGetByte = function (address) {
+		if (address >= 1024 && (address + 1) <= this.memoryLimit) return this.memory.getUint8(address - 1024);
+		return null;
+	};
+	this.dbgGetWord = function (address) {
+		if (address >= 1024 && (address + 2) <= this.memoryLimit) return this.memory.getUint16(address - 1024, true);
+		return null;
+	};
+	this.dbgGetDword = function (address) {
+		if (address >= 1024 && (address + 4) <= this.memoryLimit) return this.memory.getUint32(address - 1024, true);
+		return null;
+	};
+	this.dbgSetByte = function (address, value) {
+		if (address >= 1024 && (address + 1) <= this.memoryLimit) {
+			this.memory.setUint8(address - 1024, value);
+			return true;
+		}
+		return false;
+	};
+	this.dbgSetWord = function (address, value) {
+		if (address >= 1024 && (address + 2) <= this.memoryLimit) {
+			this.memory.setUint16(address - 1024, value, true);
+			return true;
+		}
+		return false;
+	};
+	this.dbgSetDword = function (address, value) {
+		if (address >= 1024 && (address + 4) <= this.memoryLimit) {
+			this.memory.setUint16(address - 1024, value, true);
+			return true;
+		}
 		return false;
 	};
 	Object.freeze(this.regs);
@@ -1225,8 +1258,6 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 	this.getFlagOv = function () { return this.context.flagOv; }
 	this.getFlagSign = function () { return this.context.flagSign; }
 	this.getFlagZ = function () { return this.context.flagZ; }
-	this.getMemory = this.context.getMem;
-	this.setMemory = this.context.setMem;
 	this.getInstructionAtAddress = function (address) {
 		var idx = this.context.instructionIndexFromAddress(address);
 		if (idx < 0 || idx >= this.context.instructions.length) return null;
