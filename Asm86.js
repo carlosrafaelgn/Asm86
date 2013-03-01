@@ -126,7 +126,7 @@ function Asm86EmulatorContext(errorNotificationFunction, memorySize, inputFuncti
 		var idx = (this.nextInstruction - this.memoryLimit) >>> 2;
 		if (idx < 0 || idx >= this.instructions.length) {
 			this.errorOccurred = true;
-			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_INSTRUCTION_ADDRESS + Asm86Emulator.prototype._toHex(this.nextInstruction));
+			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_INSTRUCTION_ADDRESS + Asm86Emulator.prototype._hex(this.nextInstruction));
 			return false;
 		}
 		return true;
@@ -239,7 +239,7 @@ function Asm86EmulatorContext(errorNotificationFunction, memorySize, inputFuncti
 	this.getMem = function (address, size) {
 		if (address < 1024 || (address + size) > this.memoryLimit) {
 			this.errorOccurred = true;
-			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_READ_ADDRESS + Asm86Emulator.prototype._toHex(address));
+			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_READ_ADDRESS + Asm86Emulator.prototype._hex(address));
 			return null;
 		}
 		switch (size) {
@@ -257,7 +257,7 @@ function Asm86EmulatorContext(errorNotificationFunction, memorySize, inputFuncti
 	this.setMem = function (address, value, size) {
 		if (address < 1024 || (address + size) > this.memoryLimit) {
 			this.errorOccurred = true;
-			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_WRITE_ADDRESS + Asm86Emulator.prototype._toHex(address));
+			errorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_WRITE_ADDRESS + Asm86Emulator.prototype._hex(address));
 			return false;
 		}
 		switch (size) {
@@ -592,18 +592,18 @@ Asm86Compiler.prototype = {
 			if (!t || t.type !== Asm86Compiler.prototype.TYPE_PTR) {
 				parserContext.errorOccurred = true;
 				if (t)
-					parserContext.compilerErrorNotificationFunction("ptr", t.line, t.lineIndex, t.index);
+					parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.PTR_EXPECTED, t.line, t.lineIndex, t.index);
 				else
-					parserContext.compilerErrorNotificationFunction("ptr", initialToken.line, initialToken.lineIndex, initialToken.index);
+					parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.PTR_EXPECTED, initialToken.line, initialToken.lineIndex, initialToken.index);
 				return null;
 			}
 			t = Asm86Compiler.prototype._getNextToken(parserContext);
 			if (!t || t.type !== Asm86Compiler.prototype.TYPE_OPENBRACKET) {
 				parserContext.errorOccurred = true;
 				if (t)
-					parserContext.compilerErrorNotificationFunction("[", t.line, t.lineIndex, t.index);
+					parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.SQBRACKET_EXPECTED, t.line, t.lineIndex, t.index);
 				else
-					parserContext.compilerErrorNotificationFunction("[", initialToken.line, initialToken.lineIndex, initialToken.index);
+					parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.SQBRACKET_EXPECTED, initialToken.line, initialToken.lineIndex, initialToken.index);
 				return null;
 			}
 		}
@@ -612,23 +612,23 @@ Asm86Compiler.prototype = {
 		if (!t || exprErr.eof) {
 			parserContext.errorOccurred = true;
 			if (t)
-				parserContext.compilerErrorNotificationFunction("EOF memória", t.line, t.lineIndex, t.index);
+				parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_MEMORY_REF_FORMAT, t.line, t.lineIndex, t.index);
 			else
-				parserContext.compilerErrorNotificationFunction("EOF memória", initialToken.line, initialToken.lineIndex, initialToken.index);
+				parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_MEMORY_REF_FORMAT, initialToken.line, initialToken.lineIndex, initialToken.index);
 			return null;
 		}
 		if (exprErr.err) {
 			parserContext.errorOccurred = true;
-			parserContext.compilerErrorNotificationFunction("Formato de expressão de memória inválido", exprErr.err.line, exprErr.err.lineIndex, exprErr.err.index);
+			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_MEMORY_REF_FORMAT, exprErr.err.line, exprErr.err.lineIndex, exprErr.err.index);
 			return null;
 		}
 		if (t.type !== Asm86Compiler.prototype.TYPE_CLOSEBRACKET) {
 			parserContext.errorOccurred = true;
-			parserContext.compilerErrorNotificationFunction("Formato de expressão de memória inválido", t.line, t.lineIndex, t.index);
+			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_MEMORY_REF_FORMAT, t.line, t.lineIndex, t.index);
 			return null;
 		}
-		scale = (r.scale ? r.scale.value : 0);
-		if (!scale) {
+		scale = (r.scale ? r.scale.value : 1);
+		if (scale === 1) {
 			scale = 0;
 		} else if (scale === 2) {
 			scale = 1;
@@ -638,7 +638,7 @@ Asm86Compiler.prototype = {
 			scale = 3;
 		} else {
 			parserContext.errorOccurred = true;
-			parserContext.compilerErrorNotificationFunction("Escala inválida", r.scale.line, r.scale.lineIndex, r.scale.index);
+			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_SCALE, r.scale.line, r.scale.lineIndex, r.scale.index);
 			return null;
 		}
 		if (r.type === Asm86Compiler.prototype.TYPE_NUMBER) {
@@ -922,7 +922,7 @@ Asm86Compiler.prototype = {
 					}
 					if (i >= lToken.length) {
 						parserContext.errorOccurred = true;
-						parserContext.compilerErrorNotificationFunction("Invalid number", t.line, t.lineIndex, t.index);
+						parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
 						return null;
 					}
 					start = i;
@@ -940,7 +940,7 @@ Asm86Compiler.prototype = {
 								break;
 						}
 						if (parserContext.errorOccurred) {
-							parserContext.compilerErrorNotificationFunction("Invalid number", t.line, t.lineIndex, t.index);
+							parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
 							return null;
 						}
 					}
@@ -948,7 +948,7 @@ Asm86Compiler.prototype = {
 					if (neg) c = -c;
 					if (c < -0x80000000 || c > 0xFFFFFFFF) {
 						parserContext.errorOccurred = true;
-						parserContext.compilerErrorNotificationFunction("Value out of range", t.line, t.lineIndex, t.index);
+						parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.VALUE_OUT_OF_RANGE, t.line, t.lineIndex, t.index);
 						return null;
 					}
 					parserContext.context.uint32Tmp[0] = c;
@@ -1056,7 +1056,7 @@ Asm86Compiler.prototype = {
 					} else {
 						if (c !== 0x005F && (c < 0x0030 || (c > 0x0039 && c < 0x0041) || (c > 0x005A && c < 0x0061) || (c > 0x007A && c < 0x00C0))) {
 							parserContext.errorOccurred = true;
-							parserContext.compilerErrorNotificationFunction("Invalid Character: ", parserContext.line, i - parserContext.lineStartIndex, i);
+							parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_CHAR, parserContext.line, i - parserContext.lineStartIndex, i);
 							return null;
 						}
 						if (startIndex < 0) {
@@ -1263,7 +1263,9 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 		if (idx < 0 || idx >= this.context.instructions.length) return null;
 		return this.context.instructions[idx];
 	};
-	this.toHex = Asm86Emulator.prototype._toHex;
+	this.numericString = Asm86Emulator.prototype._numeric;
+	this.hexString = Asm86Emulator.prototype._hex;
+	this.hexStringNoPrefix = Asm86Emulator.prototype._hexNoPrefix;
 	function internalResumeTimer() {
 		return ((running && !emulator.context.halted && !emulator.context.pendingIO) ? internalRun.call(emulator) : true);
 	}
@@ -1543,22 +1545,56 @@ Asm86Emulator.prototype = {
 		OPERATOR_EXPECTED_AFTER_PREFIX: "Era esperado um operador depois do prefixo",
 		OPERATOR_CANNOT_HAVE_PREFIX: "Esse operador não pode ser utilizado com um prefixo",
 		OPERAND_EXPECTED: "Era esperado um operando",
-		COLON_EXPECTED: "Definição de label incompleta: era esperado o caracter \":\"",
-		COMMA_EXPECTED: "Era esperado o caracter \",\"",
+		COLON_EXPECTED: "Definição de label incompleta: era esperado o caractere \":\"",
+		COMMA_EXPECTED: "Era esperado o caractere \",\"",
 		UNKNOWN_VARIABLE: "Nome de variável desconhecido: ",
-		NOT_ENOUGH_SPACE: "O tamanho total ocupado pelas variáveis excede o tamanho da memória: "
+		NOT_ENOUGH_SPACE: "O tamanho total ocupado pelas variáveis excede o tamanho da memória: ",
+		PTR_EXPECTED: "Expressão de memória inválida: era esperado \"ptr\"",
+		SQBRACKET_EXPECTED: "Expressão de memória inválida: era esperado o caractere \"[\"",
+		INVALID_MEMORY_REF_FORMAT: "Formato de expressão de memória inválido",
+		INVALID_SCALE: "A escala de um registrador deve ser 1, 2, 4 ou 8",
+		INVALID_NUMBER: "Número inválido",
+		VALUE_OUT_OF_RANGE: "Valor fora dos limites permitidos",
+		INVALID_CHAR: "Caractere inválido: ",
 	},
-	_toHex: function (x, size) {
+	_numericHelper: new DataView(new ArrayBuffer(4)),
+	_numeric: function (x, mode, size) {
+		//x is expected to be an unsigned value
+		switch (mode) {
+			case 0:
+				return Asm86Emulator.prototype._hex(x, size);
+			case 1:
+				return x.toString(10) + " (u)";
+		}
+		if (!size || size === 4) {
+			Asm86Emulator.prototype._numericHelper.setUint32(0, x);
+			return Asm86Emulator.prototype._numericHelper.getInt32(0).toString(10) + " (s)";
+		} else if (size === 2) {
+			Asm86Emulator.prototype._numericHelper.setUint16(0, x);
+			return Asm86Emulator.prototype._numericHelper.getInt16(0).toString(10) + " (s)";
+		}
+		Asm86Emulator.prototype._numericHelper.setUint8(0, x);
+		return Asm86Emulator.prototype._numericHelper.getInt8(0).toString(10) + " (s)";
+	},
+	_hex: function (x, size) {
+		//x is expected to be an unsigned value
+		return "0x" + Asm86Emulator.prototype._hexNoPrefix(x, size);
+	},
+	_hexNoPrefix: function (x, size) {
+		//x is expected to be an unsigned value
 		var s;
 		if (!size || size === 4) {
-			s = "0000000" + x.toString(16);
-			return "0x" + s.substr(s.length - 8);
+			s = "0000000" + x.toString(16).toUpperCase();
+			return s.substr(s.length - 8);
+		} else if (size === 3) {
+			s = "00000" + x.toString(16).toUpperCase();
+			return s.substr(s.length - 6);
 		} else if (size === 2) {
-			s = "000" + x.toString(16);
-			return "0x" + s.substr(s.length - 4);
+			s = "000" + x.toString(16).toUpperCase();
+			return s.substr(s.length - 4);
 		}
-		s = "0" + x.toString(16);
-		return "0x" + s.substr(s.length - 2);
+		s = "0" + x.toString(16).toUpperCase();
+		return s.substr(s.length - 2);
 	},
 	_createContext: function (emulator, memorySize, inputFunction, outputFunction) {
 		return new Asm86EmulatorContext(function (message) { return emulator.onRuntimeError.notify(emulator, message); }, memorySize, inputFunction, outputFunction);
@@ -3715,6 +3751,6 @@ Asm86Emulator.prototype.OP.loopz = Asm86Emulator.prototype.OP.loope;
 Asm86Emulator.prototype.OP.loopnz = Asm86Emulator.prototype.OP.loopne;
 Asm86Emulator.prototype.OP.sal = Asm86Emulator.prototype.OP.shl;
 for (var op in Asm86Emulator.prototype.OP) Object.freeze(Asm86Emulator.prototype.OP[op]);
-Object.freeze(Asm86Emulator.prototype.MESSAGES);
+Object.seal(Asm86Emulator.prototype.MESSAGES); //seal, do not freeze, so it can be translated
 Object.freeze(Asm86Emulator.prototype.OP);
 Object.freeze(Asm86Emulator.prototype);
