@@ -1420,13 +1420,7 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 	this.addVariable = function (name, size, initialContents, forceArray) {
 		if (this.isRunningOrWaiting()) return false;
 		compiled = false;
-		/*
-						if (!n || !n.length || n.indexOf(" ") > 0 || n.indexOf("\t") > 0 || n.charCodeAt(0) < 0x0041) {
-					Popup.show("Nome de variável inválido!");
-					return true;
-				}
-		*/
-		if (!name || !name.length) {
+		if (!name || !name.length || name.indexOf(" ") > 0 || name.indexOf("\t") > 0 || name.charCodeAt(0) < 0x0041) {
 			this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + name);
 			return false;
 		}
