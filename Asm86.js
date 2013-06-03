@@ -742,7 +742,7 @@ Asm86Compiler.prototype = {
 			label = labels[p.label];
 			if (!label) {
 				parserContext.errorOccurred = true;
-				parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.UNKNOWN_LABEL + p.label, p.line, p.lineIndex, p.index);
+				parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.UNKNOWN_LABEL + "\"" + p.label + "\"", p.line, p.lineIndex, p.index);
 				return false;
 			}
 			p.label = label;
@@ -814,7 +814,7 @@ Asm86Compiler.prototype = {
 		var lName = name.toLocaleLowerCase(), label;
 		if (parserContext.labels[lName]) {
 			parserContext.errorOccurred = true;
-			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.DUPLICATE_LABEL + name, line, lineIndex, index);
+			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.DUPLICATE_LABEL + "\"" + name + "\"", line, lineIndex, index);
 			return null;
 		}
 		label = {
@@ -1056,7 +1056,7 @@ Asm86Compiler.prototype = {
 					} else {
 						if (c !== 0x005F && (c < 0x0030 || (c > 0x0039 && c < 0x0041) || (c > 0x005A && c < 0x0061) || (c > 0x007A && c < 0x00C0))) {
 							parserContext.errorOccurred = true;
-							parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_CHAR, parserContext.line, i - parserContext.lineStartIndex, i);
+							parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_CHAR + "\"" + String.fromCharCode(c) + "\"", parserContext.line, i - parserContext.lineStartIndex, i);
 							return null;
 						}
 						if (startIndex < 0) {
@@ -1077,6 +1077,7 @@ Object.freeze(Asm86Compiler.prototype);
 //inputFunction = function(address, ioArray, size) return true if operation succeeded, or false indicate that the operation is still pending
 //outputFunction = function(address, ioArray, size) return true if operation succeeded, or false indicate that the operation is still pending
 function Asm86Emulator(memorySize, inputFunction, outputFunction) {
+	if (!Date.now) Date.now = function () { return (+new Date()); };
 	var emulator = this, vars = {}, continueOnResumption = false, running = false, compiled = false, stepPending = false, portMem = new DataView(new ArrayBuffer(16)), execTimeout = null, lastTimeout = null, lastTimeout2 = null, lastTimeout3 = null, lastTimeout4 = null;
 	function ObserverSet() {
 		this._observers = new Array();
@@ -1161,7 +1162,7 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 		if (address >= 0 && address <= 0xFFFF) {
 			var v;
 			if (!address) {
-				v = +new Date();
+				v = Date.now();
 				portMem.setUint32(0, v, true);
 				ioArray.setUint32(0, v, true);
 				return true;
@@ -1276,11 +1277,11 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 		continueOnResumption = false;
 		ctx.errorOccurred = false;
 		if (!firstTime) this.onStartedRunning.notify(this);
-		firstTime = +new Date();
+		firstTime = Date.now();
 		while (running && !ctx.errorOccurred && !ctx.halted && !ctx.pendingIO) {
 			if ((++count) > 100) {
 				count = 0;
-				if (((+new Date()) - firstTime) > 5) {
+				if ((Date.now() - firstTime) > 5) {
 					execTimeout = setTimeout(internalResumeTimer, 5);
 					return true;
 				}
@@ -1328,7 +1329,7 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 				this.onStoppedRunning.notify(this, true, false, false, false, false);
 		}
 		this.onReset.notify(this);
-		portMem.setUint32(0, +new Date(), true);
+		portMem.setUint32(0, Date.now(), true);
 		portMem.setUint32(4, 100, true);
 		portMem.setUint32(8, 0, true);
 		return wasRunningOrWaiting;
@@ -1421,12 +1422,12 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 		if (this.isRunningOrWaiting()) return false;
 		compiled = false;
 		if (!name || !name.length || name.indexOf(" ") > 0 || name.indexOf("\t") > 0 || name.charCodeAt(0) < 0x0041) {
-			this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + name);
+			this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + "\"" + name + "\"");
 			return false;
 		}
 		var lName = name.toLocaleLowerCase(), v = vars[lName];
 		if (v) {
-			this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.DUPLICATE_VARIABLE + name);
+			this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.DUPLICATE_VARIABLE + "\"" + name + "\"");
 			return false;
 		}
 		if (lName !== "_in") {
@@ -1436,11 +1437,11 @@ function Asm86Emulator(memorySize, inputFunction, outputFunction) {
 				case "byte":
 				case "ptr":
 				case "in":
-					this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + name);
+					this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + "\"" + name + "\"");
 					return false;
 			}
 			if (Asm86Emulator.prototype.OP[lName] || this.context.regs[lName]) {
-				this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + name);
+				this.onVariableError.notify(this, Asm86Emulator.prototype.MESSAGES.INVALID_VARIABLE_NAME + "\"" + name + "\"");
 				return false;
 			}
 		}
@@ -1549,7 +1550,7 @@ Asm86Emulator.prototype = {
 		INVALID_SCALE: "A escala de um registrador deve ser 1, 2, 4 ou 8",
 		INVALID_NUMBER: "Número inválido",
 		VALUE_OUT_OF_RANGE: "Valor fora dos limites permitidos",
-		INVALID_CHAR: "Caractere inválido: ",
+		INVALID_CHAR: "Caractere inválido: "
 	},
 	_numericHelper: new DataView(new ArrayBuffer(4)),
 	_numeric: function (x, mode, size) {
