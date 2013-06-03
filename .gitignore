@@ -1,6 +1,8 @@
 *.png
 *.bak
 *.lnk
+*.txt
+*.url
 codemirror.css
 codemirror.js
 codemirror-active-line.js
