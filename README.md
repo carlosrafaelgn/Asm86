@@ -1,3 +1,6 @@
+Asm86
+=====
+
 This is a JavaScript assembly x86 compiler and emulator for educational purposes. I use it in my classes on Computer Architecture.
 
 The project site, http://carlosrafaelgn.com.br/Asm86, can be used as an example (in Portuguese). It uses CodeMirror (http://codemirror.net) as the code editor.
