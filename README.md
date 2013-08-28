@@ -26,11 +26,25 @@ Limitations:
 - Not all CMOVcc/Jcc/SETcc instructions have been implemented
 - Neither protected mode nor virtual mode has been implemented
 
-I tried to be as faithful as possible to the manuals from Intel (although Volume 3 was not too much used):
+I tried to be as faithful as possible to the manuals from Intel (although Volumes 2C, 3A, 3B and 3C were not too much used):
 
-Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 1 - Basic Architecture (January 2013)
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 1 - Basic Architecture (June 2013)
 http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-1-manual.html
-Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 2 - Instruction Set Reference, A-Z (March 2012)
-http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-2b-instruction-set-a-z-manual.html
-Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 3 - System Programming Guide (August 2012)
-http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-3b-system-programming-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2A: Instruction Set Reference, A-M (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2B: Instruction Set Reference, N-Z (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2b-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2C: Instruction Set Reference (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2c-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3A: System Programming Guide, Part 1 (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3B: System Programming Guide, Part 2 (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3b-part-2-manual.html
+
+Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3C: System Programming Guide, Part 3 (June 2013)
+http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3c-part-3-manual.html
