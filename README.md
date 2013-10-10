@@ -48,3 +48,5 @@ http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-arch
 
 Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3C: System Programming Guide, Part 3 (June 2013)
 http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3c-part-3-manual.html
+
+This projected is licensed under the terms of the FreeBSD License. See LICENSE.txt for more details.
