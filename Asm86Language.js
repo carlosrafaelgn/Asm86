@@ -1,5 +1,5 @@
 //
-// Asm86Language.js is distributed under the FreeBSD License
+// Asm86 is distributed under the FreeBSD License
 //
 // Copyright (c) 2013, Carlos Rafael Gimenes das Neves
 // All rights reserved.
@@ -28,7 +28,7 @@
 // of the authors and should not be interpreted as representing official policies, 
 // either expressed or implied, of the FreeBSD Project.
 //
-// https://github.com/carlosrafaelgn/Asm86/blob/master/Asm86Language.js
+// https://github.com/carlosrafaelgn/Asm86
 //
 "use strict";
 var Asm86Language = {
