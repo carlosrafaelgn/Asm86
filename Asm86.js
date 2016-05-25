@@ -893,7 +893,7 @@ Asm86Compiler.prototype = {
 		};
 	},
 	_createToken: function (parserContext, currentToken, startIndex, nextIndex) {
-		var lToken, i, c, t = { line: parserContext.line, lineIndex: (startIndex - parserContext.lineStartIndex), index: startIndex }, neg = false, radix = 10, start;
+		var lToken, i, c, validLength, t = { line: parserContext.line, lineIndex: (startIndex - parserContext.lineStartIndex), index: startIndex }, neg = false, radix = 10, start;
 		parserContext.index = nextIndex;
 		switch ((c = currentToken.charCodeAt(0))) {
 			case 0x002A: //*
@@ -923,7 +923,8 @@ Asm86Compiler.prototype = {
 						neg = true;
 						i++;
 					}
-					if (lToken.length >= (i + 2)) {
+					validLength = lToken.length;
+					if (validLength >= (i + 2)) {
 						if (lToken.charCodeAt(i) === 0x0030) {
 							if (lToken.charCodeAt(i + 1) === 0x0078) { //x
 								radix = 16;
@@ -933,14 +934,34 @@ Asm86Compiler.prototype = {
 								i += 2;
 							}
 						}
+						switch (lToken.charCodeAt(validLength - 1)) {
+							case 0x0062: //b
+								validLength--;
+								if (radix !== 10) {
+									parserContext.errorOccurred = true;
+									parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
+									return null;
+								}
+								radix = 2;
+								break;
+							case 0x0068: //h
+								validLength--;
+								if (radix !== 10) {
+									parserContext.errorOccurred = true;
+									parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
+									return null;
+								}
+								radix = 16;
+								break;
+						}
 					}
-					if (i >= lToken.length) {
+					if (i >= validLength) {
 						parserContext.errorOccurred = true;
 						parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
 						return null;
 					}
 					start = i;
-					for (; i < lToken.length; i++) {
+					for (; i < validLength; i++) {
 						c = lToken.charCodeAt(i);
 						switch (radix) {
 							case 2:
