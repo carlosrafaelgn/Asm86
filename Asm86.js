@@ -1807,6 +1807,20 @@ Asm86Emulator.prototype = {
 				break;
 		}
 		return result;
+	},
+	_flagCarry: function (ctx, result, size) {
+		switch (size) {
+			case 1:
+				ctx.flagCarry = ((result > 0xFF) ? 1 : 0);
+				break;
+			case 2:
+				ctx.flagCarry = ((result > 0xFFFF) ? 1 : 0);
+				break;
+			case 4:
+				ctx.flagCarry = ((result > 0xFFFFFFFF) ? 1 : 0);
+				break;
+		}
+		return result;
 	}
 };
 Asm86Emulator.prototype.OP = {
@@ -2247,7 +2261,7 @@ Asm86Emulator.prototype.OP = {
 			rt = a + b;
 			r = op1.set(rt);
 			if (ctx.errorOccurred) return undefined;
-			ctx.flagCarry = ((rt > 0xFFFFFFFF) ? 1 : 0);
+			Asm86Emulator.prototype._flagCarry(ctx, rt, op1.size);
 			Asm86Emulator.prototype._flagOvAdd(ctx, a, b, r, op1.size);
 			Asm86Emulator.prototype._flagZ(ctx, r, op1.size);
 			return Asm86Emulator.prototype._flagSign(ctx, r, op1.size);
@@ -2267,7 +2281,7 @@ Asm86Emulator.prototype.OP = {
 			rt = a + b + ctx.flagCarry;
 			r = op1.set(rt);
 			if (ctx.errorOccurred) return undefined;
-			ctx.flagCarry = ((rt > 0xFFFFFFFF) ? 1 : 0);
+			Asm86Emulator.prototype._flagCarry(ctx, rt, op1.size);
 			Asm86Emulator.prototype._flagOvAdd(ctx, a, b, r, op1.size);
 			Asm86Emulator.prototype._flagZ(ctx, r, op1.size);
 			return Asm86Emulator.prototype._flagSign(ctx, r, op1.size);
@@ -3062,7 +3076,7 @@ Asm86Emulator.prototype.OP = {
 			r = op1.set(rt);
 			if (ctx.errorOccurred) return undefined;
 			op2.set(a);
-			ctx.flagCarry = ((rt > 0xFFFFFFFF) ? 1 : 0);
+			Asm86Emulator.prototype._flagCarry(ctx, rt, op1.size);
 			Asm86Emulator.prototype._flagOvAdd(ctx, a, b, r, op1.size);
 			Asm86Emulator.prototype._flagZ(ctx, r, op1.size);
 			return Asm86Emulator.prototype._flagSign(ctx, r, op1.size);
