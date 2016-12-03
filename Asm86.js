@@ -934,25 +934,27 @@ Asm86Compiler.prototype = {
 								i += 2;
 							}
 						}
-						switch (lToken.charCodeAt(validLength - 1)) {
-							case 0x0062: //b
-								validLength--;
-								if (radix !== 10) {
-									parserContext.errorOccurred = true;
-									parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
-									return null;
-								}
-								radix = 2;
-								break;
-							case 0x0068: //h
-								validLength--;
-								if (radix !== 10) {
-									parserContext.errorOccurred = true;
-									parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
-									return null;
-								}
-								radix = 16;
-								break;
+						if (radix === 10) {
+							switch (lToken.charCodeAt(validLength - 1)) {
+								case 0x0062: //b
+									validLength--;
+									if (radix !== 10) {
+										parserContext.errorOccurred = true;
+										parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
+										return null;
+									}
+									radix = 2;
+									break;
+								case 0x0068: //h
+									validLength--;
+									if (radix !== 10) {
+										parserContext.errorOccurred = true;
+										parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.INVALID_NUMBER, t.line, t.lineIndex, t.index);
+										return null;
+									}
+									radix = 16;
+									break;
+							}
 						}
 					}
 					if (i >= validLength) {
