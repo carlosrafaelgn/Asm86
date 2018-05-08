@@ -2394,7 +2394,7 @@ Asm86Emulator.prototype.OP = {
 			r = op1.set(a << b | c << (b - 1) | (a >>> ((op1.size << 3) - b + 1)) & ((1 << (b - 1)) - 1));
 			if (ctx.errorOccurred) return undefined;
 			ctx.flagCarry = (a >>> ((op1.size << 3) - b)) & 1;
-			if (b === 1) ctx.flagOv = ctx.flagCarry ^ (a >>> (op1.size << 3) - 2);
+			if (b === 1) ctx.flagOv = ctx.flagCarry ^ ((a >>> (op1.size << 3) - 2) & 1);
 			return r;
 		}
 	},
@@ -2410,7 +2410,7 @@ Asm86Emulator.prototype.OP = {
 			r = op1.set(((a & ((1 << (b - 1)) - 1)) << ((op1.size << 3) - b + 1)) | (c << ((op1.size << 3) - b)) | (a >>> b));
 			if (ctx.errorOccurred) return undefined;
 			ctx.flagCarry = (a >>> (b - 1)) & 1;
-			if (b === 1) ctx.flagOv = c ^ (a >>> (op1.size << 3) - 1);
+			if (b === 1) ctx.flagOv = c ^ ((a >>> (op1.size << 3) - 1) & 1);
 			return r;
 		}
 	},
@@ -2426,7 +2426,7 @@ Asm86Emulator.prototype.OP = {
 			r = op1.set((a << b) | ((a >>> ((op1.size << 3) - b)) & ((1 << b) - 1)));
 			if (ctx.errorOccurred) return undefined;
 			ctx.flagCarry = (a >>> ((op1.size << 3) - b)) & 1;
-			if (b === 1) ctx.flagOv = ctx.flagCarry ^ (a >>> (op1.size << 3) - 2);
+			if (b === 1) ctx.flagOv = ctx.flagCarry ^ ((a >>> (op1.size << 3) - 2) & 1);
 			return r;
 		}
 	},
@@ -2436,13 +2436,13 @@ Asm86Emulator.prototype.OP = {
 		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_IMM, //imm or CL only!
 		validate: Asm86Emulator.prototype._validateShift,
 		exec: function (ctx, op1, op2) {
-			var a = op1.get(), b = op2.get() & 31, r, c = ctx.flagCarry;
+			var a = op1.get(), b = op2.get() & 31, r;
 			if (!b) return a;
 			if (ctx.errorOccurred) return undefined;
 			r = op1.set(((a & ((1 << b) - 1)) << ((op1.size << 3) - b)) | (a >>> b));
 			if (ctx.errorOccurred) return undefined;
 			ctx.flagCarry = (a >>> (b - 1)) & 1;
-			if (b === 1) ctx.flagOv = c ^ (a >>> (op1.size << 3) - 1);
+			if (b === 1) ctx.flagOv = ctx.flagCarry ^ ((a >>> (op1.size << 3) - 1) & 1);
 			return r;
 		}
 	},
