@@ -2424,9 +2424,20 @@ Asm86Emulator.prototype.OP = {
 		op2Type: Asm86Emulator.prototype.TYPE_REG | Asm86Emulator.prototype.TYPE_IMM, //imm or CL only!
 		validate: Asm86Emulator.prototype._validateShift,
 		exec: function (ctx, op1, op2) {
-			var a = op1.get(), b = op2.get() & 31, r;
+			var a = op1.get(), b = op2.get() & 31, r, tmp = ctx.tmp4Byte;
 			if (!b) return a;
 			if (ctx.errorOccurred) return undefined;
+			switch (op1.size) {
+				case 1:
+					//sign extend
+					tmp.setInt8(0, a);
+					a = tmp.getInt8(0);
+					break;
+				case 2:
+					tmp.setInt16(0, a);
+					a = tmp.getInt16(0);
+					break;
+			}
 			r = op1.set(a >> b);
 			if (ctx.errorOccurred) return undefined;
 			ctx.flagCarry = (a >>> (b - 1)) & 1;
