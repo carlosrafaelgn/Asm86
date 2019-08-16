@@ -3278,7 +3278,7 @@ Asm86Emulator.prototype.OP = {
 					tmp.setInt16(0, ctx.regs.ax.get());
 					b = a * tmp.getInt16(0);
 					ctx.regs.ax.set(b & 0xFFFF);
-					b = ctx.regs.ax.set(b >>> 16);
+					b = ctx.regs.dx.set(b >>> 16);
 					if (b && b !== 0xFFFF)
 						ctx.flagCarry = 1;
 					break;
