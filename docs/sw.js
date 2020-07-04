@@ -162,11 +162,8 @@ self.addEventListener("fetch", (event) => {
 				// need two usable streams: one to be used by the cache
 				// and one to be returned to the browser! So, we send a
 				// clone of the response to the cache.
-				if (response) {
-					fixResponseHeaders(response);
-					if (response.status === 200)
-						cache.put(event.request, response.clone());
-				}
+				if (response && response.status === 200)
+					cache.put(event.request, response.clone());
 				return response;
 			}, () => {
 				// The request was neither in our cache nor was it
