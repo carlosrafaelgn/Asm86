@@ -1,0 +1,16 @@
+.CodeMirror-completions {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  -webkit-box-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+  -moz-box-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.3);
+}
+.CodeMirror-completions select {
+  background: #fafafa;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: normal 14px Consolas, 'Lucida Console', 'Lucida Sans Typewriter', monospace;
+}

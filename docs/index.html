@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head data-nores="1">
+	<meta charset="utf-8" />
+	<script type="text/javascript">//<![CDATA[
+		"use strict"; (function () { var vp = document.createElement("meta"); vp.setAttribute("name", "viewport"); vp.setAttribute("content", ((screen.availWidth >= 720) || (screen.availHeight >= 720)) ? "width=device-width, initial-scale=1" : "width=720"); document.head.appendChild(vp); })(); //]]>
+	</script>
+
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://carlosrafaelgn.github.io/Asm86/" />
+	<meta property="og:title" content="Assembly x86 Emulator" />
+	<meta property="og:site_name" content="Assembly x86 Emulator" />
+	<meta property="og:description" content="Assembly x86 Emulator" />
+	<meta property="og:image" content="https://carlosrafaelgn.github.io/Asm86/images/screenshot.png" />
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:width" content="1366">
+	<meta property="og:image:height" content="768">
+	<meta name="author" content="Carlos Rafael Gimenes das Neves" />
+	<meta name="description" content="Assembly x86 Emulator" />
+	<meta name="keywords" content="assembly, x86, emulator, assembly x86 emulator" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-title" content="Assembly x86 Emulator" />
+	<link rel="apple-touch-icon" sizes="57x57" href="favicons/apple-icon-57x57.png" />
+	<link rel="apple-touch-icon" sizes="60x60" href="favicons/apple-icon-60x60.png" />
+	<link rel="apple-touch-icon" sizes="72x72" href="favicons/apple-icon-72x72.png" />
+	<link rel="apple-touch-icon" sizes="76x76" href="favicons/apple-icon-76x76.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="favicons/apple-icon-114x114.png" />
+	<link rel="apple-touch-icon" sizes="120x120" href="favicons/apple-icon-120x120.png" />
+	<link rel="apple-touch-icon" sizes="144x144" href="favicons/apple-icon-144x144.png" />
+	<link rel="apple-touch-icon" sizes="152x152" href="favicons/apple-icon-152x152.png" />
+	<link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-icon-180x180.png" />
+	<link rel="icon" type="image/png" sizes="512x512" href="favicons/favicon-512x512.png" />
+	<link rel="icon" type="image/png" sizes="192x192" href="favicons/favicon-192x192.png" />
+	<link rel="icon" type="image/png" sizes="96x96" href="favicons/favicon-96x96.png" />
+	<link rel="icon" type="image/png" sizes="48x48" href="favicons/favicon-48x48.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png" />
+	<link rel="Shortcut Icon" href="favicons/favicon.ico" />
+	<link rel="Shortcut Icon" href="favicons/favicon.png" />
+	<link rel="manifest" href="favicons/manifest.json" />
+	<meta name="msapplication-config" content="favicons/browserconfig.xml" />
+	<meta name="theme-color" content="#222222" />
+
+	<title>Assembly x86 Emulator</title>
+
+	<script type="text/javascript">//<![CDATA[
+	"use strict"; window._isFullScreen = 2; //]]></script>
+	<script type="text/javascript" charset="utf-8" src="main.js"></script>
+	<script type="text/javascript" charset="utf-8" src="Asm86.js"></script>
+	<script type="text/javascript" charset="utf-8" src="Asm86Language.js"></script>
+
+	<link rel="stylesheet" href="codeMirror/codemirror.css" />
+	<script type="text/javascript" charset="utf-8" src="codeMirror/codemirror.js"></script>
+	<script type="text/javascript" charset="utf-8" src="codeMirror/Asm86.js"></script>
+	<script type="text/javascript" charset="utf-8" src="codeMirror/active-line.js"></script>
+
+	<style type="text/css">
+		.ERROR_CONTAINER {
+			background-color: #ffd8dc;
+			border-top: 1px solid #f04649;
+		}
+		.INFO_CONTAINER {
+			background-color: #efefff;
+			border-top: 1px solid #80acd7;
+		}
+		.INFO_CONTAINER_FULL {
+			background-color: #efefff;
+			border: 1px solid #80acd7;
+		}
+		.WARN_CONTAINER {
+			background-color: #fdecbd;
+			border-top: 1px solid #dcbe67;
+		}
+		.EMPTY_CONTAINER {
+			background-color: #fffaea;
+			border-top: 1px solid #dcbe67;
+		}
+		.MSG {
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
+		.DIFF {
+			background-color: #00f;
+			color: #fff;
+		}
+		.BTNHARD {
+			width: 28pt;
+			margin: 8pt;
+		}
+		.LED {
+			margin: 0px;
+		}
+		.BOLD {
+			font-weight: bold;
+		}
+		.VAR_DEL {
+			color: #f00;
+			font-family: sans-serif;
+			font-weight: bold;
+		}
+		.VAR_ALT {
+			background-color: #fade8c;
+		}
+		.CONSLINE {
+			padding: 0px;
+			margin: 0px;
+		}
+		.CONS {
+			border: 1px solid #000;
+			color: #fff;
+			background: #000;
+			white-space: pre;
+		}
+	</style>
+	<script type="text/javascript">
+		//<![CDATA[
+		"use strict";
+
+		if (("serviceWorker" in navigator))
+			navigator.serviceWorker.register("sw.js");
+
+		var emulator, editor, codeEditor, codeEditorClean, lastURL, btnRun, btnPause, lblStepping, lblRunning, txtFile, panelMsg, btnLine, btnLineVisible, lblMsg, btnCloseMsg, btnAboutClose, chkShowVariables, chkShowRegisters, chkShowEEPROM, chkShowHardware, chkShowConsole, chkShadow,
+			dlgVariables, dlgRegisters, dlgHardware, dlgEEPROM, containerDlgEEPROM, panelMsgEEPROM, lastEEPROM, tbEEPROM, tdEEPROM, dlgConsole, divConsole, divConsoleLines, divConsoleLineBackground, divConsoleLineColor,
+			divConsoleLineBuffer, divConsolePos, divConsoleX, divConsoleY, panelConsole, txtConsole, btnSendConsole, dlgAbout, emulatorIOMem, emulatorEEPROMMem,
+			ledsOn, ledsOff, panelMsgVar, currentLineMarker, btnAddVariable, lastVariableSortCriteria, variables, lastVariables, trVariables, tbVariables, dlgAddVariable, txtVarName,
+			chkVarSize1, chkVarSize2, chkVarSize4, chkVarSizeArray, chkVarSizeArrayFill, chkVarSizeString, txtVarInitialValue, txtVarSize, txtVarArray, txtVarString,
+			panelMsgReg, tdEAX, tdEBX, tdECX, tdEDX, tdESI, tdEDI, tdEBP, tdESP, tdEIP, tdEIPx, tdFlagCarry, tdFlagDir, tdFlagI, tdFlagOv, tdFlagSign, tdFlagZ,
+			lastEAX, lastEBX, lastECX, lastEDX, lastESI, lastEDI, lastEBP, lastESP, lastEIP, lastFlagCarry, lastFlagDir, lastFlagI, lastFlagOv, lastFlagSign, lastFlagZ,
+			pageOptions = (function () {
+				var i, kv, o = {}, s = window.location.search;
+				if (s && s.length > 1) {
+					s = s.substr(1).split("&");
+					for (i = 0; i < s.length; i++) {
+						kv = s[i].split("=");
+						o[unescape(kv[0])] = ((kv.length > 1) ? unescape(kv[1]) : "");
+					}
+				}
+				if (o.language)
+					o.language = o.language.toLowerCase();
+				else
+					o.language = "en";
+				return o;
+			})();
+		if (!window.URL)
+			window.URL = window.webkitURL;
+		function hideMsg() {
+			panelMsg.className = "EMPTY_CONTAINER";
+			if (btnLineVisible) {
+				lblMsg.style.left = "2px";
+				btnLineVisible = false;
+				Elem.hide(btnLine);
+			}
+			Elem.hide(lblMsg);
+			Elem.hide(btnCloseMsg);
+			return true;
+		}
+		function showMsg(message, errorOrWarning, line, lineIndex) {
+			if (line !== undefined) {
+				btnLine.innerHTML = Asm86UI.LINE + " " + (line + 1) + ", " + Asm86UI.COLUMN + " " + (lineIndex + 1);
+				btnLine._line = line;
+				btnLine._lineIndex = lineIndex;
+				if (!btnLineVisible) {
+					btnLineVisible = true;
+					Elem.show(btnLine);
+				}
+				lblMsg.style.left = btnLine.offsetWidth + "px";
+			} else if (btnLineVisible) {
+				lblMsg.style.left = "2px";
+				btnLineVisible = false;
+				Elem.hide(btnLine);
+			}
+			lblMsg.innerHTML = message;
+			Elem.show(lblMsg);
+			Elem.show(btnCloseMsg);
+			panelMsg.className = (!errorOrWarning ? "INFO_CONTAINER" : ((errorOrWarning === 1) ? "ERROR_CONTAINER" : "WARN_CONTAINER"));
+			return true;
+		}
+		function refreshVariableValue(v, ignoreLast) {
+			if (v.vType === Asm86Emulator.prototype.VTYPE_NUMBER) {
+				var val, tr = trVariables[v.name], td = tr.childNodes[3];
+				if (v.address < 0) val = (v.initialContents || 0);
+				else val = v.get();
+				if (!ignoreLast) {
+					if (val === lastVariables[v.name])
+						Elem.removeStyle(td, "DIFF");
+					else
+						Elem.addStyle(td, "DIFF");
+				}
+				lastVariables[v.name] = val;
+				td.removeChild(td.firstChild);
+				Elem.text(emulator.numericString(val, td._mode, v.size), td);
+			}
+			return true;
+		}
+		function refreshVariables() {
+			for (var n in variables)
+				refreshVariableValue(variables[n]);
+		}
+		function refreshRegister(td, last) {
+			var v = td._reg.get(), s;
+			if (last !== undefined) {
+				if (v === last)
+					Elem.removeStyle(td, "DIFF");
+				else
+					Elem.addStyle(td, "DIFF");
+			}
+			td.removeChild(td.firstChild);
+			Elem.text(emulator.numericString(v, td._regMode), td);
+			return v;
+		}
+		function refreshFlag(td, v, last) {
+			if (v === last)
+				Elem.removeStyle(td, "DIFF");
+			else
+				Elem.addStyle(td, "DIFF");
+			td.innerHTML = (v ? "1" : "0");
+			return v;
+		}
+		function refreshRegisters() {
+			lastEAX = refreshRegister(tdEAX, lastEAX);
+			lastEBX = refreshRegister(tdEBX, lastEBX);
+			lastECX = refreshRegister(tdECX, lastECX);
+			lastEDX = refreshRegister(tdEDX, lastEDX);
+			lastESI = refreshRegister(tdESI, lastESI);
+			lastEDI = refreshRegister(tdEDI, lastEDI);
+			lastEBP = refreshRegister(tdEBP, lastEBP);
+			lastESP = refreshRegister(tdESP, lastESP);
+			lastEIP = refreshRegister(tdEIP, lastEIP);
+			lastFlagCarry = refreshFlag(tdFlagCarry, emulator.getFlagCarry(), lastFlagCarry);
+			lastFlagDir = refreshFlag(tdFlagDir, emulator.getFlagDir(), lastFlagDir);
+			lastFlagI = refreshFlag(tdFlagI, emulator.getFlagI(), lastFlagI);
+			lastFlagOv = refreshFlag(tdFlagOv, emulator.getFlagOv(), lastFlagOv);
+			lastFlagSign = refreshFlag(tdFlagSign, emulator.getFlagSign(), lastFlagSign);
+			lastFlagZ = refreshFlag(tdFlagZ, emulator.getFlagZ(), lastFlagZ);
+			var instr = emulator.getInstructionAtAddress(emulator.registers.eip.get());
+			if (!instr) {
+				tdEIPx.innerHTML = Asm86UI.NOCODE;
+				if (editor) editor.clearGutter("currentLine");
+			} else {
+				tdEIPx.innerHTML = Asm86UI.LINE + " " + (instr.line + 1) + ", " + Asm86UI.COLUMN + " " + (instr.lineIndex + 1);
+				if (editor) {
+					editor.clearGutter("currentLine");
+					editor.setGutterMarker(instr.line, "currentLine", currentLineMarker);
+					//editor.scrollIntoView(instr.line, instr.lineIndex);
+					editor.setCursor(instr.line, instr.lineIndex);
+				}
+			}
+			return true;
+		}
+		function refreshEEPROM() {
+			if (tbEEPROM) {
+				var i, v;
+				for (i = 0; i < 256; i++) {
+					if (lastEEPROM[i] !== (v = emulatorEEPROMMem[i])) {
+						lastEEPROM[i] = v;
+						tdEEPROM[i].replaceChild(document.createTextNode(emulator.hexStringNoPrefix(v, 1)), tdEEPROM[i].firstChild);
+						Elem.addStyle(tdEEPROM[i], "DIFF");
+					} else {
+						Elem.removeStyle(tdEEPROM[i], "DIFF");
+					}
+				}
+			}
+			return true;
+		}
+		function refreshEmulator(errorOccurred) {
+			if (!emulator.isRunningOrWaiting()) {
+				//refresh registers, variables and memory...
+				refreshRegisters();
+				refreshVariables();
+				refreshEEPROM();
+			} else if (!errorOccurred) {
+				if (emulator.isPendingIO())
+					showMsg(Asm86UI.PROCESSOR_IO, 2);
+				else if (emulator.isHalted())
+					showMsg(Asm86UI.PROCESSOR_INT, 2);
+				else
+					hideMsg();
+			}
+			return true;
+		}
+		function refreshRunningState(running, stepping) {
+			if (!running) {
+				Elem.hide(btnPause);
+				Elem.show(btnRun);
+				Elem.hide(lblStepping);
+				Elem.hide(lblRunning);
+				Elem.hide(panelMsgVar);
+				Elem.hide(panelMsgReg);
+				Elem.hide(panelMsgEEPROM);
+			} else {
+				if (!stepping) {
+					if (editor) editor.clearGutter("currentLine");
+					Elem.show(btnPause);
+					Elem.hide(btnRun);
+				}
+				Elem.show(stepping ? lblStepping : lblRunning);
+				Elem.show(panelMsgVar);
+				Elem.show(panelMsgReg);
+				Elem.show(panelMsgEEPROM);
+			}
+			return true;
+		}
+		function emulator_CompilationFinished(emulator, errorOccurred) {
+			//refresh the address of all variables
+			var n, v, tr, td;
+			for (n in variables) {
+				v = variables[n];
+				tr = trVariables[n];
+				td = tr.childNodes[4];
+				td.removeChild(td.firstChild);
+				Elem.text(emulator.numericString(v.address, td._mode), td);
+			}
+			return true;
+		}
+		function emulator_CompilationError(emulator, message, line, lineIndex, index) {
+			showMsg(message, 1, line, lineIndex);
+			return true;
+		}
+		function emulator_Reset(emulator) {
+			var i;
+			showMsg(Asm86UI.EMU_RESET);
+			for (i = 0; i < 8; i++) {
+				Elem.hide(ledsOn[i]);
+				Elem.show(ledsOff[i]);
+			}
+			emulatorIOMem.setUint32(0, 0);
+			emulatorIOMem.setUint32(4, 0);
+			emulatorIOMem.setUint32(8, 0);
+			emulatorIOMem.setUint32(12, 0);
+			emulatorIOMem.setUint32(16, 0);
+			emulatorIOMem.setUint32(20, 0);
+			emulatorIOMem.setUint8(0xE6 - 0xE0 + 4, 255);
+			clearConsole(true);
+			txtConsole.value = "";
+			Elem.hide(panelConsole);
+			refreshRunningState(false);
+			refreshEmulator(false);
+			return true;
+		}
+		function emulator_RuntimeError(emulator, message) {
+			showMsg(message, 1);
+			return true;
+		}
+		function emulator_StartedRunning(emulator) {
+			hideMsg();
+			refreshRunningState(true);
+			refreshEmulator(false);
+			return true;
+		}
+		function emulator_StepFinished(emulator, reset, halted, pendingIO, errorOccurred) {
+			if (errorOccurred || (!halted && !pendingIO)) {
+				Elem.hide(lblStepping);
+				Elem.hide(panelMsgVar);
+				Elem.hide(panelMsgReg);
+				Elem.hide(panelMsgEEPROM);
+			}
+			if (!errorOccurred)
+				hideMsg();
+			refreshEmulator(errorOccurred);
+			return true;
+		}
+		function emulator_StoppedRunning(emulator, reset, stopCalled, halted, pendingIO, errorOccurred) {
+			if (errorOccurred || !emulator.willContinueAfterResumption())
+				refreshRunningState(false);
+			if (stopCalled)
+				hideMsg();
+			else if (!reset && !halted && !pendingIO && !errorOccurred)
+				showMsg(Asm86UI.EMU_ENDED);
+			refreshEmulator(errorOccurred);
+			return true;
+		}
+		function tdVarValue_Click(e) {
+			if (!e.button) {
+				var m = this._mode + 1;
+				if (m > 2) m = 0;
+				this._mode = m;
+				refreshVariableValue(this.parentNode._var, true);
+			}
+			return true;
+		}
+		function tdVarAddress_Click(e) {
+			if (!e.button) {
+				var v = this.parentNode._var;
+				if (v.address < 0) return true;
+				this._mode ^= 1;
+				this.removeChild(this.firstChild);
+				Elem.text(emulator.numericString(v.address, this._mode), this);
+			}
+			return true;
+		}
+		function emulator_VariableAdded(emulator, newVar) {
+			var tr, td;
+			tr = document.createElement("tr");
+			td = Elem.create("td", tr);
+			td.className = "VAR_DEL CLK _PA4";
+			td.title = Asm86UI.REM_VAR;
+			td.setAttribute("role", "button");
+			attachMouse(td, "click", btnRemoveVariable_Click);
+			Elem.text("\u00D7", td);
+			td = Elem.create("td", tr);
+			td.className = "_PA4";
+			Elem.text(newVar.name, td);
+			td = Elem.create("td", tr);
+			td.className = "_PA4";
+			Elem.text(newVar.size, td);
+			td = Elem.create("td", tr);
+			td.className = "CLK _PA4";
+			attachMouse(td, "click", tdVarValue_Click);
+			td._mode = 0;
+			Elem.text((newVar.vType !== Asm86Emulator.prototype.VTYPE_NUMBER) ? "[...]" : (newVar.initialContents || 0).toString(), td);
+			td = Elem.create("td", tr);
+			td.className = "CLK _PA4";
+			attachMouse(td, "click", tdVarAddress_Click);
+			td._mode = 0;
+			Elem.text(newVar.address, td);
+			Elem.tableBody(tbVariables).appendChild(tr);
+			tr._var = newVar;
+			variables[newVar.name] = newVar;
+			trVariables[newVar.name] = tr;
+			lastVariables[newVar.name] = ((newVar.vType !== Asm86Emulator.prototype.VTYPE_NUMBER) ? -1 : (newVar.initialContents || 0));
+			refreshVariableValue(newVar);
+			sortVariables();
+			return true;
+		}
+		function emulator_VariableError(emulator, message) {
+			Popup.showError(message);
+			return true;
+		}
+		function emulator_VariableRemoved(emulator, oldVar) {
+			delete trVariables[oldVar.name]._var;
+			Elem.tableBody(tbVariables).removeChild(trVariables[oldVar.name]);
+			delete variables[oldVar.name];
+			delete trVariables[oldVar.name];
+			delete lastVariables[oldVar.name];
+			sortVariables();
+			return true;
+		}
+		function btnRemoveVariable_Click2(name, opt) {
+			if (!opt)
+				return true;
+			emulator.removeVariable(name);
+			return true;
+		}
+		function btnRemoveVariable_Click(e) {
+			if (!e.button) {
+				if (emulator.isRunningOrWaiting()) {
+					Popup.showError(Asm86UI.IMPOSSIBLE_REM_VAR);
+					return true;
+				}
+				Popup.showYesNo(Asm86UI.CONFIRM_REM_VAR + " \"" + this.parentNode._var.name + "\"?", "Oops...", btnRemoveVariable_Click2, this.parentNode._var.name);
+			}
+			return true;
+		}
+		function sortVariables_Name(a, b) {
+			var na = a._var.name.toLocaleLowerCase(), nb = b._var.name.toLocaleLowerCase();
+			return ((lastVariableSortCriteria < 0) ? nb.localeCompare(na) : na.localeCompare(nb));
+		}
+		function sortVariables_Size(a, b) {
+			var va = a._var, vb = b._var;
+			if (va.size === vb.size) return sortVariables_Name(a, b);
+			return ((lastVariableSortCriteria < 0) ? (vb.size - va.size) : (va.size - vb.size));
+		}
+		function sortVariables_Address(a, b) {
+			var va = a._var, vb = b._var;
+			if (va.address === vb.address) return sortVariables_Name(a, b);
+			return ((lastVariableSortCriteria < 0) ? (vb.address - va.address) : (va.address - vb.address));
+		}
+		function sortVariables(criteria, invertIfSame) {
+			if (criteria) {
+				if (criteria === Math.abs(lastVariableSortCriteria) && invertIfSame)
+					lastVariableSortCriteria = -lastVariableSortCriteria;
+				else
+					lastVariableSortCriteria = criteria;
+			}
+			var p, i, trs = [];
+			for (i in trVariables)
+				trs.push(trVariables[i]);
+			if (trs.length) {
+				p = trs[0].parentNode;
+				switch (Math.abs(lastVariableSortCriteria)) {
+					case 2:
+						trs.sort(sortVariables_Size);
+						break;
+					case 3:
+						trs.sort(sortVariables_Address);
+						break;
+					default:
+						trs.sort(sortVariables_Name);
+						break;
+				}
+				for (i = 0; i < trs.length; i++)
+					p.removeChild(trs[i]);
+				for (i = 0; i < trs.length; i++) {
+					if ((i & 1))
+						Elem.addStyle(trs[i], "VAR_ALT");
+					else
+						Elem.removeStyle(trs[i], "VAR_ALT");
+					p.appendChild(trs[i]);
+				}
+			}
+			return true;
+		}
+		function btnVarSortByName_Click(e) {
+			return (!e.button ? sortVariables(1, true) : true);
+		}
+		function btnVarSortBySize_Click(e) {
+			return (!e.button ? sortVariables(2, true) : true);
+		}
+		function btnVarSortByAddress_Click(e) {
+			return (!e.button ? sortVariables(3, true) : true);
+		}
+		function btnAddVariable_Click(e) {
+			if (!e.button) {
+				if (emulator.isRunningOrWaiting()) {
+					Popup.showError(Asm86UI.IMPOSSIBLE_ADD_VAR);
+					return true;
+				}
+				Popup.show(dlgAddVariable, true, txtVarName, Asm86UI.ADD_VAR_TITLE);
+			}
+			return true;
+		}
+		function btnCreateVar_Click(e) {
+			if (!e.button) {
+				var v, i, n, arr;
+				if (chkVarSize1.isChecked() || chkVarSize2.isChecked() || chkVarSize4.isChecked()) {
+					v = trim(txtVarInitialValue.value);
+					i = undefined;
+					if (v && v.length) {
+						i = parseInt(v, 10);
+						if (i !== undefined && (isNaN(i) || i < -0x80000000 || i > 0xFFFFFFFF)) {
+							Popup.showError(Asm86UI.INVALID_INITIAL_VALUE + "\"" + txtVarInitialValue.value + "\"");
+							return true;
+						}
+					}
+					if (emulator.addVariable(txtVarName.value, (chkVarSize1.isChecked() ? 1 : (chkVarSize2.isChecked() ? 2 : 4)), i))
+						Popup.closeForever();
+				} else if (chkVarSizeArray.isChecked()) {
+					if (emulator.addVariable(txtVarName.value, txtVarSize.getValue(), undefined, true))
+						Popup.closeForever();
+				} else if (chkVarSizeArrayFill.isChecked()) {
+					v = txtVarArray.value;
+					if (!v || !v.length) {
+						Popup.showError(Asm86UI.INVALID_INITIAL_CONTENTS + "\"" + txtVarArray.value + "\"");
+						return true;
+					}
+					v = v.split(",");
+					if (!v || !v.length) {
+						Popup.showError(Asm86UI.INVALID_INITIAL_CONTENTS + "\"" + txtVarArray.value + "\"");
+						return true;
+					}
+					arr = new Uint8Array(v.length);
+					for (i = 0; i < v.length; i++) {
+						n = parseInt(v[i], 10);
+						if (isNaN(n) || n < -0x80 || n > 0xFF) {
+							Popup.showError(Asm86UI.INVALID_ELEMENT + "\"" + v[i] + "\"");
+							return true;
+						}
+						arr[i] = n;
+					}
+					if (emulator.addVariable(txtVarName.value, undefined, arr, true))
+						Popup.closeForever();
+				} else {
+					v = txtVarString.value;
+					if (!v || !v.length) {
+						Popup.showError(Asm86UI.EMPTY_INITIAL_TEXT);
+						return true;
+					}
+					if (emulator.addVariable(txtVarName.value, undefined, v.replace(/%n/g, "\n").replace(/%t/g, "\t")))
+						Popup.closeForever();
+				}
+			}
+			return true;
+		}
+		function btnCancelVar_Click(e) {
+			if (!e.button)
+				Popup.closeForever();
+			return true;
+		}
+		function editor_GetValue() {
+			return (editor ? editor.getValue("\n") : codeEditor.value.replace(/(\r\n|\r)/gm, "\n"));
+		}
+		function editor_SetValue(x) {
+			if (editor) editor.setValue(x); else codeEditor.value = x;
+			return true;
+		}
+		function editor_IsClean() {
+			return (editor ? editor.isClean() : codeEditorClean);
+		}
+		function editor_MarkClean() {
+			if (editor) editor.markClean(); else codeEditorClean = true;
+			return true;
+		}
+		function performCompilation() {
+			if (emulator.compile(editor_GetValue())) {
+				editor_MarkClean();
+				return true;
+			}
+			return false;
+		}
+		function performExecution(step) {
+			hideMsg();
+			if (emulator.isRunning()) {
+				showMsg(Asm86UI.PENDING_EXECUTION, 1);
+				return true;
+			}
+			if (emulator.isPendingIO()) {
+				showMsg(Asm86UI.PENDING_IO, 1);
+				return true;
+			}
+			if (emulator.isHalted()) {
+				showMsg(Asm86UI.PENDING_INT, 1);
+				return true;
+			}
+			if (!emulator.isCompiled() || !editor_IsClean()) {
+				if (!performCompilation() || step) return true;
+			}
+			refreshRunningState(true, step);
+			if (!emulator[step ? "step" : "run"]()) {
+				refreshRunningState(false);
+				showMsg(Asm86UI.PENDING_EXECUTION, 1);
+				return true;
+			}
+			return true;
+		}
+		function btnRun_Click(e) {
+			return (!e.button ? performExecution(false) : true);
+		}
+		function btnPause_Click(e) {
+			if (!e.button && emulator.isCompiled()) {
+				if (emulator.isPendingIO()) {
+					showMsg(Asm86UI.PENDING_IO, 1);
+					return true;
+				}
+				if (emulator.isHalted()) {
+					showMsg(Asm86UI.PENDING_INT, 1);
+					return true;
+				}
+				emulator.stop();
+			}
+			return true;
+		}
+		function btnStep_Click(e) {
+			return (!e.button ? performExecution(true) : true);
+		}
+		function btnReset_Click(e) {
+			if (!e.button) {
+				hideMsg();
+				if (!emulator.isCompiled() || !editor_IsClean()) {
+					if (!performCompilation()) return true;
+				}
+				refreshRunningState(false);
+				if (!emulator.reset())
+					refreshEmulator(false);
+			}
+			return true;
+		}
+		function btnCompile_Click(e) {
+			if (!e.button) {
+				hideMsg();
+				if (emulator.isRunningOrWaiting()) {
+					showMsg(Asm86UI.PENDING_EXECUTION, 1);
+					return true;
+				}
+				if (performCompilation())
+					showMsg(Asm86UI.COMPILED);
+				refreshEmulator(false);
+			}
+			return true;
+		}
+		function prepareJSONString(x) {
+			var i, r = "", c, l = x.length, initial = 0;
+			for (i = 0; i < l; i++) {
+				c = x.charCodeAt(i);
+				if (c > 0x7E || c < 0x20) {
+					for ( ; i < l; i++) {
+						c = x.charCodeAt(i);
+						if (c > 0x7E || c < 0x20 || c === 0x22 || c === 0x5C) {
+							r += x.substring(initial, i);
+							if (c === 0x0A) r += "\\n";
+							else if (c === 0x09) r += "\\t";
+							else if (c === 0x0D) r += "\\r";
+							else if (c === 0x22) r += "\\\"";
+							else if (c === 0x5C) r += "\\\\";
+							else { c = "000" + c.toString(16); r += "\\u" + c.substr(c.length - 4); }
+							initial = i + 1;
+						}
+					}
+					r += x.substring(initial, l);
+					return r;
+				}
+			}
+			return x;
+		}
+		function btnSave_Click(e) {
+			if (!e.button) {
+				if (emulator.isRunningOrWaiting()) {
+					showMsg(Asm86UI.PENDING_EXECUTION, 1);
+					return true;
+				}
+				var a, i, c, t, r = "({emulatorVersion:1,code:\"", evt;
+				r += prepareJSONString(editor_GetValue());
+				r += "\",variables:[";
+				i = false;
+				for (t in variables) {
+					t = variables[t];
+					r += (i ? ",{name:\"" : "{name:\"");
+					r += prepareJSONString(t.name);
+					r += "\",size:";
+					r += t.size;
+					if (t.initialContents !== undefined) {
+						r += ",initialContents:";
+						switch (t.vType) {
+							case Asm86Emulator.prototype.VTYPE_STRING:
+								r += "\"";
+								r += prepareJSONString(t.initialContents);
+								r += "\"";
+								break;
+							case Asm86Emulator.prototype.VTYPE_ARRAY:
+								r += "[";
+								if (t.initialContents.length) {
+									r += t.initialContents[0];
+									for (c = 1; c < t.initialContents.length; c++) {
+										r += ",";
+										r += t.initialContents[c];
+									}
+								}
+								r += "]";
+								break;
+							case Asm86Emulator.prototype.VTYPE_NUMBER:
+								r += t.initialContents;
+								break;
+						}
+					} else if (t.vType === Asm86Emulator.prototype.VTYPE_ARRAY) {
+						r += ",forceArray:true";
+					}
+					r += "}";
+					i = true;
+				}
+				r += "],eeprom:[";
+				t = false;
+				for (i = 0; i < 256; i++) {
+					if (emulatorEEPROMMem[i] !== 0xFF) {
+						t = true;
+						break;
+					}
+				}
+				if (t) {
+					r += emulatorEEPROMMem[0];
+					for (i = 1; i < 256; i++) {
+						r += ",";
+						r += emulatorEEPROMMem[i];
+					}
+				}
+				r += "]})";
+
+
+				//I'm really NOT proud of doing this... :(
+				if (navigator.userAgent.indexOf("MSIE") > 0) {
+					i = window.open("about:blank");
+					i.document.write(r);
+				} else {
+					//Massive workaround to save the file (simulate a click on a link)!
+					//(From: http://updates.html5rocks.com/2011/08/Saving-generated-files-on-the-client-side)
+					a = document.createElement("a");
+					if (lastURL)
+						window.URL.revokeObjectURL(lastURL);
+					lastURL = window.URL.createObjectURL(new Blob([r], { type: "application/octet-stream" }));
+					a.href = lastURL;
+					a.download = "Asm86.txt";
+					//a.click(); //Works on Chrome, but not on Firefox...
+					evt = document.createEvent("MouseEvents");
+					evt.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+					a.dispatchEvent(evt);
+				}
+				////I'm really NOT proud of doing this... :(
+				//if (navigator.userAgent.indexOf("MSIE") > 0) {
+				//	i = window.open("about:blank");
+				//	i.document.write(r);
+				//} else {
+				//	BasicLayout.goTo("data:application/octet-stream;charset=US-ASCII," + escape(r), false);
+				//}
+			}
+			return true;
+		}
+		function btnOpen_Click(e) {
+			if (!e.button) {
+				if (emulator.isRunningOrWaiting()) {
+					showMsg(Asm86UI.PENDING_EXECUTION, 1);
+					return true;
+				}
+				txtFile.click();
+			}
+			return true;
+		}
+		function btnLoadSample_Click(e) {
+			if (!e.button) {
+				var req, f = ((pageOptions.language !== "pt-br") ? "Asm86SampleEn.txt" : "Asm86Sample.txt");
+				try {
+					req = new XMLHttpRequest();
+					req.open("GET", f, false);
+					req.send();
+					if (req.status !== 200) {
+						Popup.showError(Asm86UI.SAMPLE_ERROR + "HTTP " + req.status);
+						return true;
+					}
+				} catch (e) {
+					Popup.showError(Asm86UI.SAMPLE_ERROR + e);
+					return true;
+				}
+				loadContents(req.responseText, f, true);
+			}
+			return true;
+		}
+		function loadContents(contents, fileName, isSample) {
+			try {
+				var i, c, r = eval(contents);
+				if (!r || !r.emulatorVersion) {
+					Popup.showError(Asm86UI.UNKNOWN_FILE_FORMAT + "\"" + fileName + "\"");
+					return false;
+				}
+				for (i in variables)
+					emulator.removeVariable(i);
+				if (r.code && (typeof r.code === "string"))
+					editor_SetValue(r.code);
+				else
+					editor_SetValue("");
+				if (r.variables && r.variables.length) {
+					for (i = r.variables.length - 1; i >= 0; i--) {
+						c = r.variables[i].initialContents;
+						if (c !== undefined && (typeof c !== "string") && c.length >= 0)
+							c = new Uint8Array(c);
+						if (!emulator.addVariable(r.variables[i].name, parseInt(r.variables[i].size), c, r.variables[i].forceArray))
+							break;
+					}
+				}
+				if (r.eeprom && r.eeprom.length) {
+					for (i = Math.min(r.eeprom.length - 1, 255) ; i >= 0; i--) {
+						lastEEPROM[i] = parseInt(e.eeprom[i]);
+						emulatorEEPROMMem[i] = lastEEPROM[i];
+					}
+				} else {
+					for (i = 0; i < 256; i++) {
+						lastEEPROM[i] = 0xFF;
+						emulatorEEPROMMem[i] = 0xFF;
+					}
+				}
+				hideMsg();
+				if (isSample) {
+					emulator.addVariable("IDT", 64 * 4);
+					emulator.addVariable("info", undefined, Asm86UI.SAMPLE_INFO);
+					emulator.addVariable("info2", undefined, Asm86UI.SAMPLE_INFO2);
+				} else {
+					performCompilation();
+				}
+				refreshEmulator(false);
+			} catch (e) {
+				Popup.showError(Asm86UI.INVALID_FILE_FORMAT + "\"" + fileName + "\"");
+				return false;
+			}
+			return true;
+		}
+		function txtFile_Change(e) {
+			var f = txtFile.files, reader;
+			if (!f) {
+				Popup.showError(Asm86UI.NO_FILE_API);
+				return true;
+			}
+			if (!f.length)
+				return true;
+			f = f[0];
+			/*if (f.type !== "text/plain" && f.type !== "application/json") {
+				Popup.showError("Por favor, selecione um arquivo de texto válido!");
+				return true;
+			}*/
+			reader = new FileReader();
+			attachObserver(reader, "error", function (err) {
+				Popup.showError(Asm86UI.FILE_ACCESS_ERROR + "\"" + f.name + "\"<br /><br />" + Asm86UI.FILE_ACCESS_HINT);
+				return true;
+			});
+			attachObserver(reader, "load", function () {
+				//I know... it is ugly... shame on me! :(
+				var r = reader.result;
+				if (r) r = trim(r);
+				if (!r || !r.length) {
+					Popup.showError(Asm86UI.EMPTY_FILE + "\"" + f.name + "\"");
+					return true;
+				}
+				loadContents(r, f.name);
+				return true;
+			});
+			reader.readAsText(f); //reader.readAsDataURL(f);
+			return true;
+		}
+		function btnLine_Click(e) {
+			if (!e.button) {
+				if (editor) {
+					editor.setCursor(parseInt(btnLine._line, 10), parseInt(btnLine._lineIndex, 10));
+					editor.focus();
+				} else {
+					codeEditor.focus();
+				}
+			}
+			return true;
+		}
+		function btnCloseMsg_Click(e) {
+			if (!e.button) hideMsg();
+			return true;
+		}
+		function dlg_Hide(dlg, closeReason) {
+			if (closeReason === 1) {
+				var chk;
+				if (dlg === dlgVariables)
+					chk = chkShowVariables;
+				else if (dlg === dlgRegisters)
+					chk = chkShowRegisters;
+				else if (dlg === dlgEEPROM)
+					chk = chkShowEEPROM;
+				else if (dlg === dlgHardware)
+					chk = chkShowHardware;
+				else if (dlg === dlgConsole)
+					chk = chkShowConsole;
+				if (chk.isChecked())
+					chk.setChecked(false);
+			}
+			return true;
+		}
+		function chkShowVariables_CheckedChanged(e) {
+			//FloatingPopup.close(true);
+			if (chkShowVariables.isChecked()) {
+				dlgVariables.bringDialogToFront();
+				dlgVariables.showDialog();
+			} else {
+				dlgVariables.hideDialog();
+			}
+			return true;
+		}
+		function chkShowRegisters_CheckedChanged(e) {
+			//FloatingPopup.close(true);
+			if (chkShowRegisters.isChecked()) {
+				dlgRegisters.bringDialogToFront();
+				dlgRegisters.showDialog();
+			} else {
+				dlgRegisters.hideDialog();
+			}
+			return true;
+		}
+		function dlgEEPROM_BeforeShow(dlg) {
+			if (!tbEEPROM) {
+				tbEEPROM = document.createElement("table");
+				tbEEPROM.className = "MONO _BS4";
+				tbEEPROM.style.tableLayout = "fixed";
+				var i, td, tr, tb = Elem.tableBody(tbEEPROM);
+				tdEEPROM = new Array(256);
+				tr = Elem.create("tr", tb);
+				tr.className = "BOLD";
+				Elem.create("td", tr)
+				for (i = 0; i < 16; i++)
+					Elem.text("\u00A0" + i.toString(16).toUpperCase(), Elem.create("td", tr));
+				for (i = 0; i < 256; i++) {
+					if (!(i & 15)) {
+						tr = Elem.create("tr", tb);
+						Elem.text((i >>> 4).toString(16).toUpperCase(), td = Elem.create("td", tr));
+						td.className = "BOLD";
+					}
+					td = Elem.create("td", tr);
+					tdEEPROM[i] = td;
+					Elem.text(emulator.hexStringNoPrefix(emulatorEEPROMMem[i], 1), td);
+				}
+				refreshEEPROM();
+				containerDlgEEPROM.appendChild(tbEEPROM);
+			}
+			return true;
+		}
+		function dlgEEPROM_Hide(dlg, closeReason) {
+			if (tbEEPROM) {
+				tbEEPROM.parentNode.removeChild(tbEEPROM);
+				tdEEPROM = null;
+				tbEEPROM = null;
+			}
+			dlg_Hide(dlg, closeReason);
+			return true;
+		}
+		function chkShowEEPROM_CheckedChanged(e) {
+			//FloatingPopup.close(true);
+			if (chkShowEEPROM.isChecked()) {
+				dlgEEPROM.bringDialogToFront();
+				dlgEEPROM.showDialog();
+			} else {
+				dlgEEPROM.hideDialog();
+			}
+			return true;
+		}
+		function chkShowHardware_CheckedChanged(e) {
+			//FloatingPopup.close(true);
+			if (chkShowHardware.isChecked()) {
+				dlgHardware.bringDialogToFront();
+				dlgHardware.showDialog();
+			} else {
+				dlgHardware.hideDialog();
+			}
+			return true;
+		}
+		function chkShowConsole_CheckedChanged(e) {
+			//FloatingPopup.close(true);
+			if (chkShowConsole.isChecked()) {
+				dlgConsole.bringDialogToFront();
+				dlgConsole.showDialog();
+			} else {
+				dlgConsole.hideDialog();
+			}
+			return true;
+		}
+		function chkShadow_CheckedChanged(model, checked) {
+			var s = (checked ? "" : "none");
+			dlgVariables.style.boxShadow = s;
+			dlgRegisters.style.boxShadow = s;
+			dlgEEPROM.style.boxShadow = s;
+			dlgHardware.style.boxShadow = s;
+			dlgConsole.style.boxShadow = s;
+			return true;
+		}
+		function btnAbout_Click(e) {
+			if (!e.button)
+				Popup.show(dlgAbout, true, btnAboutClose, Asm86UI.ABOUT + "...");
+			return true;
+		}
+		function btnAboutClose_Click(e) {
+			if (!e.button)
+				Popup.closeForever();
+			return true;
+		}
+		function tdReg_Click(e) {
+			if (!e.button) {
+				var m = this._regMode;
+				m = m + 1;
+				if (m > 2) m = 0;
+				this._regMode = m;
+				refreshRegister(this);
+			}
+			return true;
+		}
+		function makeMarker() {
+			var marker = document.createElement("div");
+			Elem.text("●", marker);
+			marker.className = "breakpoint";
+			return marker;
+		}
+		function makeCurrentLineMarker() {
+			var marker = document.createElement("div");
+			Elem.text("→", marker);
+			marker.className = "currentLineMarker";
+			return marker;
+		}
+		function editor_GutterClick(cm, n) {
+			var info = cm.lineInfo(n);
+			cm.setGutterMarker(n, "breakpoints", (info.gutterMarkers && info.gutterMarkers["breakpoints"]) ? null : makeMarker());
+			return true;
+		}
+		function codeEditor_Change() {
+			codeEditorClean = false;
+			return true;
+		}
+		function btnH_MouseDown(e) {
+			if (!e.button) {
+				attachMouse(document, "mouseup", btnH_MouseUp, true);
+				emulatorIOMem.setUint8(0xE0 - 0xE0 + 4, parseInt(this.id.substring(this.id.length - 1), 16));
+				emulatorIOMem.setUint8(0xE1 - 0xE0 + 4, 1);
+				emulator.externalInterruptRequest(0x30);
+				if (!_cssUserSelection)
+					return cancelEvent(e);
+			}
+			return true;
+		}
+		function btnH_MouseUp() {
+			detachMouse(document, "mouseup", btnH_MouseUp, true);
+			emulatorIOMem.setUint8(0xE1 - 0xE0 + 4, 0);
+			emulator.externalInterruptRequest(0x30);
+			return true;
+		}
+		function clearConsole(updateScreen) {
+			var x, y;
+			for (y = 0; y < 20; y++) {
+				for (x = 0; x < 80; x++)
+					divConsoleLineBuffer[y][x] = 0x20;
+				divConsoleLineBackground[y] = 0x000000;
+				divConsoleLineColor[y] = 0xFFFFFF;
+			}
+			emulatorIOMem.setUint16(0xEA - 0xE0 + 4, 0, true);
+			divConsoleX = 0;
+			divConsoleY = 0;
+			if (updateScreen) updateConsoleScreen();
+			return true;
+		}
+		function outputConsole(c) {
+			var tmp, i, forceScroll = ((c === 0x0A) && (divConsoleY === 19));
+			if (c === 0x09) {
+				do {
+					outputConsole(0x20);
+				} while ((divConsoleX & 7));
+				return true;
+			}
+			if (divConsoleY > 19 || forceScroll) {
+				divConsoleX = 0;
+				divConsoleY = 19;
+				//scroll...
+				tmp = divConsoleLineBuffer[0];
+				for (i = 0; i < 19; i++)
+					divConsoleLineBuffer[i] = divConsoleLineBuffer[i + 1];
+				divConsoleLineBuffer[19] = tmp;
+				//clear the last line
+				for (i = 0; i < 80; i++)
+					tmp[i] = 0x20;
+				if (forceScroll) return true;
+			}
+			i = (c || 0x20);
+			if (i < 0x20) {
+				if (i === 0x0A) {
+					divConsoleX = 0;
+					divConsoleY++;
+					return true;
+				} else {
+					i += 0x2400;
+				}
+			}
+			//advance the cursor
+			divConsoleLineBuffer[divConsoleY][divConsoleX++] = i;
+			if (divConsoleX >= 80) {
+				divConsoleX = 0;
+				divConsoleY++;
+			}
+			return true;
+		}
+		function updateConsoleScreen() {
+			var y;
+			for (y = 0; y < 20; y++) {
+				divConsoleLines[y].replaceChild(document.createTextNode(String.fromCharCode.apply(null, divConsoleLineBuffer[y])), divConsoleLines[y].firstChild);
+				divConsoleLines[y].style.backgroundColor = (!divConsoleLineBackground[y] ? "" : "#" + emulator.hexStringNoPrefix(divConsoleLineBackground[y], 3));
+				divConsoleLines[y].style.color = ((divConsoleLineColor[y] === 0xFFFFFF) ? "" : "#" + emulator.hexStringNoPrefix(divConsoleLineColor[y], 3));
+			}
+			return true;
+		}
+		function updateConsoleLine(y) {
+			divConsoleLines[y].replaceChild(document.createTextNode(String.fromCharCode.apply(null, divConsoleLineBuffer[y])), divConsoleLines[y].firstChild);
+			divConsoleLines[y].style.backgroundColor = (!divConsoleLineBackground[y] ? "" : "#" + emulator.hexStringNoPrefix(divConsoleLineBackground[y], 3));
+			divConsoleLines[y].style.color = ((divConsoleLineColor[y] === 0xFFFFFF) ? "" : "#" + emulator.hexStringNoPrefix(divConsoleLineColor[y], 3));
+			return true;
+		}
+		function btnSendConsole_Click(e) {
+			if (!e.button) {
+				var a = emulatorIOMem.getUint32(0xEC - 0xE0 + 4, true), i, t = txtConsole.value, max = emulatorIOMem.getUint8(0xE6 - 0xE0 + 4);
+				if (t.length < max) max = t.length;
+				for (i = 0; i < max; i++, a += 2) {
+					if (!emulator.context.dbgSetWord(a, t.charCodeAt(i))) break;
+				}
+				emulator.context.dbgSetWord(a, 0);
+				emulatorIOMem.setUint8(0xE9 - 0xE0 + 4, i);
+				Elem.hide(panelConsole);
+				txtConsole.value = "";
+				emulator.externalInterruptRequest(0x31);
+			}
+			return true;
+		}
+		function emulatorInput(address, ioArray, size) {
+			if (address <= 0xEF && (address + size) > 0xE0) {
+				ioArray.setUint32(0, emulatorIOMem.getUint32(address - 0xE0 + 4, true), true);
+				return true;
+			}
+			return emulator.defaultInput(address, ioArray, size);
+		}
+		function emulatorOutput(address, ioArray, size) {
+			var i, t, v, led, end = address + size;
+			if (address <= 0xEF && end > 0xE0) {
+				if (address <= 0xE2 && end > 0xE0) {
+					for (t = 0, v = address; t < size; t++, v++) {
+						if (v === 0xE2) {
+							emulatorIOMem.setUint8(v - 0xE0 + 4, (led = ioArray.getUint8(t)));
+							//change LEDS
+							for (i = 0; i < 8; i++) {
+								if ((led & 1)) {
+									Elem.hide(ledsOff[i]);
+									Elem.show(ledsOn[i]);
+								} else {
+									Elem.hide(ledsOn[i]);
+									Elem.show(ledsOff[i]);
+								}
+								led >>>= 1;
+							}
+						}
+					}
+				}
+				if (address <= 0xE3 && end > 0xE3) {
+					//when changing the address, update data if OE = 1
+					emulatorIOMem.setUint8(0xE3 - 0xE0 + 4, (v = ioArray.getUint8(0xE3 - address)));
+					if ((emulatorIOMem.getUint8(0xE5 - 0xE0 + 4) & 2))
+						emulatorIOMem.setUint8(0xE4 - 0xE0 + 4, emulatorEEPROMMem[v]);
+				}
+				if (address <= 0xE4 && end > 0xE4) {
+					//writing to data has effect only when OE = 0
+					if (!(emulatorIOMem.getUint8(0xE5 - 0xE0 + 4) & 2))
+						emulatorIOMem.setUint8(0xE4 - 0xE0 + 4, ioArray.getUint8(0xE4 - address));
+				}
+				if (address <= 0xE5 && end > 0xE5) {
+					i = emulatorIOMem.getUint8(0xE5 - 0xE0 + 4);
+					emulatorIOMem.setUint8(0xE5 - 0xE0 + 4, (v = (ioArray.getUint8(0xE5 - address) & 3)));
+					if ((v & 2)) {
+						//update data
+						emulatorIOMem.setUint8(0xE4 - 0xE0 + 4, emulatorEEPROMMem[emulatorIOMem.getUint8(0xE3 - 0xE0 + 4)]);
+					}
+					if ((i & 1) && !(v & 1)) {
+						//store the contents of data into the EEPROM
+						emulatorEEPROMMem[emulatorIOMem.getUint8(0xE3 - 0xE0 + 4)] = emulatorIOMem.getUint8(0xE4 - 0xE0 + 4);
+					}
+				}
+				if (address <= 0xE6 && end > 0xE6)
+					emulatorIOMem.setUint8(0xE6 - 0xE0 + 4, ioArray.getUint8(0xE6 - address));
+				if (address <= 0xE7 && end > 0xE7)
+					emulatorIOMem.setUint8(0xE7 - 0xE0 + 4, ioArray.getUint8(0xE7 - address));
+				if (address <= 0xE8 && end > 0xE8) {
+					emulatorIOMem.setUint8(0xE8 - 0xE0 + 4, (v = ioArray.getUint8(0xE8 - address)));
+					switch (v) {
+						case 0:
+							emulatorIOMem.setUint8(0xE9 - 0xE0 + 4, 0);
+							Elem.hide(panelConsole);
+							txtConsole.value = "";
+							break;
+						case 1:
+							emulatorIOMem.setUint8(0xE9 - 0xE0 + 4, 0);
+							v = emulatorIOMem.getUint8(0xE6 - 0xE0 + 4);
+							txtConsole.value = "";
+							if (v) {
+								txtConsole.maxLength = v;
+								if (!dlgConsole.isDialogShown()) {
+									dlgConsole.showDialog();
+									dlgConsole.bringDialogToFront();
+								}
+								Elem.show(panelConsole);
+								txtConsole.style.width = (panelConsole.offsetWidth - 4 - btnSendConsole.offsetWidth) + "px";
+								btnSendConsole.style.marginLeft = "4px";
+								txtConsole.focus();
+							} else {
+								Elem.hide(panelConsole);
+							}
+							break;
+						case 2:
+							clearConsole(false);
+							break;
+						case 3:
+							v = emulatorIOMem.getUint8(0xE6 - 0xE0 + 4);
+							i = emulatorIOMem.getUint32(0xEC - 0xE0 + 4, true);
+							while (v && (t = emulator.context.dbgGetWord(i))) {
+								outputConsole(t);
+								i += 2;
+								v--;
+							}
+							emulatorIOMem.setUint8(0xEA - 0xE0 + 4, divConsoleX);
+							emulatorIOMem.setUint8(0xEB - 0xE0 + 4, divConsoleY);
+							break;
+						case 4:
+							updateConsoleScreen();
+							break;
+						case 5:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								updateConsoleLine(v);
+							break;
+						case 6:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineBackground[v] = (divConsoleLineBackground[v] & 0x00FFFF) | (emulatorIOMem.getUint8(0xE6 - 0xE0 + 4) << 16);
+							break;
+						case 7:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineBackground[v] = (divConsoleLineBackground[v] & 0xFF00FF) | (emulatorIOMem.getUint8(0xE6 - 0xE0 + 4) << 8);
+							break;
+						case 8:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineBackground[v] = (divConsoleLineBackground[v] & 0xFFFF00) | emulatorIOMem.getUint8(0xE6 - 0xE0 + 4);
+							break;
+						case 9:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineColor[v] = (divConsoleLineColor[v] & 0x00FFFF) | (emulatorIOMem.getUint8(0xE6 - 0xE0 + 4) << 16);
+							break;
+						case 10:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineColor[v] = (divConsoleLineColor[v] & 0xFF00FF) | (emulatorIOMem.getUint8(0xE6 - 0xE0 + 4) << 8);
+							break;
+						case 11:
+							if ((v = emulatorIOMem.getUint8(0xE7 - 0xE0 + 4)) <= 19)
+								divConsoleLineColor[v] = (divConsoleLineColor[v] & 0xFFFF00) | emulatorIOMem.getUint8(0xE6 - 0xE0 + 4);
+							break;
+					}
+				}
+				if (address <= 0xEA && end > 0xEA) {
+					v = ioArray.getUint8(0xEA - address);
+					divConsoleX = ((v > 79) ? 79 : v);
+					emulatorIOMem.setUint8(0xEA - 0xE0 + 4, divConsoleX);
+				}
+				if (address <= 0xEB && end > 0xEB) {
+					v = ioArray.getUint8(0xEB - address);
+					divConsoleY = ((v > 20) ? 20 : v);
+					emulatorIOMem.setUint8(0xEB - 0xE0 + 4, divConsoleY);
+					if (divConsoleY === 20) {
+						divConsoleX = 0;
+						emulatorIOMem.setUint8(0xEA - 0xE0 + 4, 0);
+					}
+				}
+				if (address <= 0xEF && end > 0xEC) {
+					for (t = 0, v = address; t < size; t++, v++) {
+						if (v >= 0xEC)
+							emulatorIOMem.setUint8(v - 0xE0 + 4, ioArray.getUint8(t));
+					}
+				}
+				return true;
+			}
+			return emulator.defaultOutput(address, ioArray, size);
+		}
+		function main() {
+			if (pageOptions.language !== "pt-br") {
+				document.documentElement.setAttribute("lang", "en");
+				Asm86Language.translate(Asm86Language.enMessages, Asm86Language.enUI);
+			} else {
+				document.documentElement.setAttribute("lang", "pt-br");
+			}
+			document.title = Asm86UI.TITLE;
+			var i, e, e2, d, opts, btnSave, btnOpen, captionHeight, btnStep, btnReset,
+				btnCompile, btnWindows, btnAbout, btnVarSortByName, btnVarSortBySize, btnVarSortByValue, btnVarSortByAddress;
+			document.body.style.overflow = "hidden";
+			e = BasicLayout.getBasicElements();
+			captionHeight = Elem.iconHeight;
+			e.Footer.parentNode.removeChild(e.Footer);
+			e.Footer = null;
+			if (pageOptions.language !== "pt-br") {
+				e.PageCaption.lastChild.setAttribute("target", "_blank");
+				e.PageCaption.lastChild.setAttribute("title", "Go to home page");
+			}
+			e.PageCaption.removeChild(e.PageCaption.firstChild);
+			e.PageCaption.insertBefore(document.createTextNode(Asm86UI.TITLE), e.PageCaption.firstChild);
+			e.InnerContainer.style.padding = "4px 0px 0px";
+			e.InnerContainer.style.position = "absolute";
+			e.InnerContainer.style.top = Elem.controlHeight + "px";
+			e.InnerContainer.style.right = "0px";
+			e.InnerContainer.style.bottom = "0px";
+			e.InnerContainer.style.left = "0px";
+			$("tlbMain").style.minWidth = "720px";
+			e2 = e.PageCaption;
+			e = document.createElement("div");
+			e.style.display = "inline-block";
+			e.style.position = "absolute";
+			e.style.right = (Elem.controlHeight + 2) + "px";
+			e.style.top = "0px";
+			e.style.fontSize = Elem.em2spx(1);
+			e.style.textShadow = "none";
+			opts = "";
+			for (i in pageOptions) {
+				if (i !== "language") {
+					opts += "&";
+					opts += i;
+					opts += "=";
+					opts += escape(pageOptions[i]);
+				}
+			}
+			d = $("mnuLanguage");
+			for (i = d.childNodes.length - 1; i >= 0; i--) {
+				if (d.childNodes[i].nodeType === 1 && d.childNodes[i].nodeName === "A")
+					d.childNodes[i].href += opts;
+			}
+			d = Elem.createToolbarButton(Asm86UI.LANGUAGE, e);
+			Elem.insertImageInButton(d, "images/flags.png");
+			FloatingPopup.prepareButtonBase($("mnuLanguage"), d, true);
+			d = document.createElement("div");
+			d.className = "TLBSEP";
+			d.style.marginBottom = "5px";
+			d.style.height = (Elem.controlHeight - 12) + "px";
+			e.appendChild(d);
+			Elem.createToolbarButton(Asm86UI.LOAD_EXAMPLE, e, btnLoadSample_Click);
+			e2.insertBefore(e, e2.firstChild);
+			e = document.createElement("div");
+			e.className = "TLBSEP";
+			e.style.marginBottom = "1px";
+			e.style.height = (Elem.controlHeight - 12) + "px";
+			e2.insertBefore(e, e2.firstChild);
+			e = document.createElement("div");
+			e.style.display = "inline-block";
+			e.style.margin = "0px";
+			e.style.width = "0px";
+			e.style.height = "5px";
+			e.style.verticalAlign = "top";
+			e.style.overflow = "hidden";
+			e2.insertBefore(e, e2.firstChild);
+			txtFile = document.createElement("input");
+			txtFile.type = "file";
+			attachObserver(txtFile, "change", txtFile_Change);
+			e.appendChild(txtFile);
+			btnOpen = document.createElement("img");
+			btnOpen.className = "CLK";
+			btnOpen.title = Asm86UI.LOAD_FILE;
+			btnOpen.tabIndex = 0;
+			btnOpen.setAttribute("role", "button");
+			btnOpen.src = "images/Asm86Open.png";
+			btnOpen.style.verticalAlign = "top";
+			btnOpen.style.margin = (((Elem.controlHeight - 8) >>> 1) - (24 >>> 1)) + "px 0px 0px";
+			btnOpen.style.width = "30px";
+			btnOpen.style.height = "24px";
+			Elem.addButtonLikeKeyHandling(btnOpen);
+			e2.insertBefore(btnOpen, e2.firstChild);
+			attachMouse(btnOpen, "click", btnOpen_Click);
+			e2.insertBefore(document.createTextNode(" "), e2.firstChild);
+			btnSave = document.createElement("img");
+			btnSave.className = "CLK";
+			btnSave.title = Asm86UI.SAVE_FILE;
+			btnSave.tabIndex = 0;
+			btnSave.setAttribute("role", "button");
+			btnSave.src = "images/Asm86Save.png";
+			btnSave.style.verticalAlign = "top";
+			btnSave.style.margin = (((Elem.controlHeight - 8) >>> 1) - (24 >>> 1)) + "px 0px 0px";
+			btnSave.style.width = "24px";
+			btnSave.style.height = "24px";
+			Elem.addButtonLikeKeyHandling(btnSave);
+			e2.insertBefore(btnSave, e2.firstChild);
+			attachMouse(btnSave, "click", btnSave_Click);
+
+			variables = {};
+			lastVariables = {};
+			trVariables = {};
+			emulatorIOMem = new DataView(new ArrayBuffer(24));
+			lastEEPROM = new Uint16Array(256);
+			emulatorEEPROMMem = new Uint8Array(256);
+			for (i = 0; i < 256; i++) {
+				lastEEPROM[i] = 0xFF;
+				emulatorEEPROMMem[i] = 0xFF;
+			}
+			emulator = new Asm86Emulator(128 * 1024, emulatorInput, emulatorOutput);
+			emulator.onCompilationFinished.attach(emulator_CompilationFinished);
+			emulator.onCompilationError.attach(emulator_CompilationError);
+			emulator.onReset.attach(emulator_Reset);
+			emulator.onRuntimeError.attach(emulator_RuntimeError);
+			emulator.onStartedRunning.attach(emulator_StartedRunning);
+			emulator.onStepFinished.attach(emulator_StepFinished);
+			emulator.onStoppedRunning.attach(emulator_StoppedRunning);
+			emulator.onVariableAdded.attach(emulator_VariableAdded);
+			emulator.onVariableError.attach(emulator_VariableError);
+			emulator.onVariableRemoved.attach(emulator_VariableRemoved);
+			currentLineMarker = makeCurrentLineMarker();
+			codeEditor = $("codeEditor");
+			if (pageOptions.noeditor !== "true") {
+				editor = CodeMirror.fromTextArea(codeEditor, {
+					lineNumbers: true,
+					styleActiveLine: true,
+					gutters: ["CodeMirror-linenumbers", "breakpoints", "currentLine"],
+					undoDepth: 128,
+					showCursorWhenSelecting: true,
+					dragDrop: false,
+					indentWithTabs: true,
+					tabSize: 4,
+					smartIndent: false,
+					indentUnit: 4
+				});
+				codeEditor.removeAttribute("id");
+				codeEditor.value = "";
+				codeEditor.parentNode.removeChild(codeEditor);
+				codeEditor = editor.getWrapperElement();
+				codeEditor.id = "codeEditor";
+				editor.on("gutterClick", editor_GutterClick);
+				e = codeEditor;
+			} else {
+				e = document.createElement("div");
+				e.style.position = "absolute";
+				e.style.padding = "0px";
+				codeEditor.parentNode.replaceChild(e, codeEditor);
+				e.appendChild(codeEditor);
+				codeEditor.style.fontSize = "14px";
+				codeEditor.style.boxShadow = "none";
+				codeEditor.style.borderColor = "#dcbe67";
+				codeEditor.style.borderStyle = "solid none none";
+				codeEditor.style.borderWidth = "1px 0px 0px";
+				codeEditor.style.resize = "none";
+				codeEditor.style.width = "100%";
+				codeEditor.style.height = "100%";
+				codeEditor.style.padding = "0px 0px 0px 4px";
+				codeEditor.wrap = "off"; //ugly... but what can I do...?
+				attachObserver(codeEditor, "change", codeEditor_Change);
+			}
+			editor_MarkClean();
+			e.style.top = ((4 << 1) + Elem.controlHeight) + "px";
+			e.style.right = "0px";
+			e.style.bottom = (Elem.controlHeight + 1) + "px";
+			e.style.left = "0px";
+			Elem.text(Asm86UI.RUN, (btnRun = $("btnRun")));
+			Elem.text(Asm86UI.PAUSE, (btnPause = $("btnPause")));
+			Elem.text(Asm86UI.STEP, (btnStep = $("btnStep")));
+			Elem.text(Asm86UI.RESET, (btnReset = $("btnReset")));
+			Elem.text(Asm86UI.COMPILE, (btnCompile = $("btnCompile")));
+			Elem.text(Asm86UI.WINDOWS, (btnWindows = $("btnWindows")));
+			Elem.text(Asm86UI.STEPPING, (lblStepping = $("lblStepping")));
+			Elem.text(Asm86UI.RUNNING, (lblRunning = $("lblRunning")));
+			btnAbout = $("btnAbout");
+			btnAbout.title = Asm86UI.ABOUT;
+			panelMsg = $("panelMsg");
+			btnLine = $("btnLine");
+			lblMsg = $("lblMsg");
+			btnCloseMsg = $("btnCloseMsg");
+			btnCloseMsg.title = Asm86UI.CLOSE_MSG;
+
+			panelMsg.style.position = "absolute";
+			panelMsg.style.whiteSpace = "nowrap";
+			panelMsg.style.left = "0px";
+			panelMsg.style.right = "0px";
+			panelMsg.style.bottom = "0px";
+			panelMsg.style.height = Elem.controlHeight + "px";
+			btnLine.style.padding = "0px 8px";
+			btnLine.style.fontWeight = "bold";
+			btnLineVisible = false;
+			lblMsg.style.position = "absolute";
+			lblMsg.style.width = "auto";
+			lblMsg.style.top = "0px";
+			lblMsg.style.left = "2px";
+			lblMsg.style.right = Elem.controlHeight + "px";
+			btnCloseMsg.style.fontFamily = "sans-serif";
+			btnCloseMsg.style.position = "absolute";
+			btnCloseMsg.style.right = "0px";
+			btnCloseMsg.style.width = Elem.controlHeight + "px";
+			btnCloseMsg.style.fontSize = "18px";
+			btnCloseMsg.style.fontWeight = "bold";
+			btnCloseMsg.style.textAlign = "center";
+
+			Elem.insertImageInButton(btnRun, "images/Asm86Run.png");
+			Elem.insertImageInButton(btnPause, "images/Asm86Pause.png");
+			Elem.insertImageInButton(btnStep, "images/Asm86Step.png");
+			Elem.insertImageInButton(btnReset, "images/Asm86Reset.png");
+			Elem.insertImageInButton(btnCompile, "images/Asm86Compile.png");
+			Elem.insertImageInButton(btnWindows, "images/Asm86Windows.png");
+			attachMouse(btnRun, "click", btnRun_Click);
+			attachMouse(btnPause, "click", btnPause_Click);
+			attachMouse(btnStep, "click", btnStep_Click);
+			attachMouse(btnReset, "click", btnReset_Click);
+			attachMouse(btnCompile, "click", btnCompile_Click);
+			attachMouse(btnLine, "click", btnLine_Click);
+			attachMouse(btnCloseMsg, "click", btnCloseMsg_Click);
+			chkShowVariables = new CheckBox(false, Asm86UI.VARIABLES);
+			chkShowVariables.replaceControl($("chkShowVariables"), true);
+			chkShowVariables.onCheckedChanged.attach(chkShowVariables_CheckedChanged);
+			chkShowRegisters = new CheckBox(false, Asm86UI.REGISTERS);
+			chkShowRegisters.replaceControl($("chkShowRegisters"), true);
+			chkShowRegisters.onCheckedChanged.attach(chkShowRegisters_CheckedChanged);
+			chkShowEEPROM = new CheckBox(false, Asm86UI.EEPROM);
+			chkShowEEPROM.replaceControl($("chkShowEEPROM"), true);
+			chkShowEEPROM.onCheckedChanged.attach(chkShowEEPROM_CheckedChanged);
+			chkShowHardware = new CheckBox(false, Asm86UI.HARDWARE);
+			chkShowHardware.replaceControl($("chkShowHardware"), true);
+			chkShowHardware.onCheckedChanged.attach(chkShowHardware_CheckedChanged);
+			chkShowConsole = new CheckBox(false, Asm86UI.CONSOLE);
+			chkShowConsole.replaceControl($("chkShowConsole"), true);
+			chkShowConsole.onCheckedChanged.attach(chkShowConsole_CheckedChanged);
+			chkShadow = new CheckBox(true, Asm86UI.SHADOW);
+			chkShadow.replaceControl($("chkShadow"), true);
+			chkShadow.onCheckedChanged.attach(chkShadow_CheckedChanged);
+			dlgAbout = Popup.createDialog();
+			if (pageOptions.language !== "pt-br") {
+				e = $("dlgAboutInner");
+				e.parentNode.removeChild(e);
+				e = $("dlgAboutInneren");
+			} else {
+				e = $("dlgAboutInneren");
+				e.parentNode.removeChild(e);
+				e = $("dlgAboutInner");
+			}
+			e.parentNode.removeChild(e);
+			e2 = document.createElement("div");
+			e2.className = "DLGBTNCONTAINER";
+			btnAboutClose = Elem.createButton(Asm86UI.OK, e2, btnAboutClose_Click);
+			e.appendChild(e2);
+			Elem.show(e);
+			dlgAbout.appendChild(e);
+			attachMouse(btnAbout, "click", btnAbout_Click);
+			FloatingPopup.prepareButtonBase($("mnuWindows"), btnWindows, true);
+			dlgVariables = Popup.createFloatingDialog(Asm86UI.VARIABLES, $("dlgVariables"), Asm86UI.CLOSE);
+			dlgVariables.onHide.attach(dlg_Hide);
+			dlgRegisters = Popup.createFloatingDialog(Asm86UI.REGISTERS, $("dlgRegisters"), Asm86UI.CLOSE);
+			dlgRegisters.onHide.attach(dlg_Hide);
+			dlgHardware = Popup.createFloatingDialog(Asm86UI.HARDWARE, $("dlgHardware"), Asm86UI.CLOSE);
+			dlgHardware.onHide.attach(dlg_Hide);
+
+			containerDlgEEPROM = $("dlgEEPROM");
+			dlgEEPROM = Popup.createFloatingDialog(Asm86UI.EEPROM, containerDlgEEPROM, Asm86UI.CLOSE);
+			dlgEEPROM.onBeforeShow.attach(dlgEEPROM_BeforeShow);
+			dlgEEPROM.onHide.attach(dlgEEPROM_Hide);
+			panelMsgEEPROM = $("panelMsgEEPROM");
+			Elem.text(Asm86UI.NOT_UPDATED, panelMsgEEPROM.firstChild);
+			tdEEPROM = null;
+			tbEEPROM = null;
+
+			divConsole = Elem.create("div", $("dlgConsole"));
+			divConsole.className = "MONO CONSLINE CONS";
+			divConsole.style.fontSize = "14px";
+			divConsole.style.lineHeight = "14px";
+			divConsoleLines = new Array(20);
+			for (i = 0; i < 20; i++) {
+				d = Elem.create("div", divConsole);
+				d.className = "CONSLINE";
+				Elem.space(d);
+				divConsoleLines[i] = d;
+			}
+			panelConsole = Elem.create("div", $("dlgConsole"));
+			panelConsole.className = "_MT4 _HID";
+			panelConsole.setAttribute("aria-hidden", "true");
+			panelConsole.setAttribute("role", "status");
+			txtConsole = Elem.createTextInput(panelConsole, undefined, true);
+			txtConsole.className = "MONO";
+			txtConsole.spellcheck = false;
+			txtConsole.style.borderRadius = "0px";
+			txtConsole.style.fontSize = e + "px";
+			txtConsole.style.lineHeight = e + "px";
+			txtConsole.style.padding = "0px";
+			txtConsole.style.border = "1px solid #000";
+			txtConsole.style.color = "#fff";
+			txtConsole.style.background = "#000";
+			btnSendConsole = Elem.createButton(Asm86UI.OK, panelConsole, btnSendConsole_Click);
+			dlgConsole = Popup.createFloatingDialog(Asm86UI.CONSOLE, $("dlgConsole"), Asm86UI.CLOSE);
+			dlgConsole.onHide.attach(dlg_Hide);
+			divConsoleLineBackground = new Uint32Array(20);
+			divConsoleLineColor = new Uint32Array(20);
+			divConsoleLineBuffer = new Array(20);
+			for (i = 0; i < 20; i++)
+				divConsoleLineBuffer[i] = new Uint16Array(80);
+			clearConsole(true);
+
+			chkVarSize1 = new RadioButton("chkVarSize", true, "1 byte");
+			chkVarSize2 = new RadioButton("chkVarSize", false, "2 bytes");
+			chkVarSize4 = new RadioButton("chkVarSize", false, "4 bytes");
+			chkVarSizeArray = new RadioButton("chkVarSize", false, Asm86UI.ARRAY_WITH_LENGTH);
+			chkVarSizeArrayFill = new RadioButton("chkVarSize", false, Asm86UI.ARRAY_WITH_BYTES);
+			chkVarSizeString = new RadioButton("chkVarSize", false, Asm86UI.ARRAY_WITH_TEXT);
+			txtVarSize = new NumericUpDown(1, 8192, 4, true);
+			panelMsgVar = $("panelMsgVar");
+			Elem.text(Asm86UI.NOT_UPDATED, panelMsgVar.firstChild);
+			lastVariableSortCriteria = 1;
+			Elem.text(Asm86UI.NAME, (btnVarSortByName = $("btnVarSortByName")));
+			btnVarSortByName.title = Asm86UI.SORT_BY_NAME;
+			Elem.text(Asm86UI.SIZE, (btnVarSortBySize = $("btnVarSortBySize")));
+			btnVarSortBySize.title = Asm86UI.SORT_BY_SIZE;
+			Elem.text(Asm86UI.VALUE, (btnVarSortByValue = $("btnVarSortByValue")));
+			Elem.text(Asm86UI.ADDR, (btnVarSortByAddress = $("btnVarSortByAddress")));
+			btnVarSortByAddress.title = Asm86UI.SORT_BY_ADDR;
+			attachMouse(btnVarSortByName, "click", btnVarSortByName_Click);
+			attachMouse(btnVarSortBySize, "click", btnVarSortBySize_Click);
+			attachMouse(btnVarSortByAddress, "click", btnVarSortByAddress_Click);
+			Elem.text(Asm86UI.ADD_VAR, (btnAddVariable = $("btnAddVariable")));
+			tbVariables = $("tbVariables");
+			attachMouse(btnAddVariable, "click", btnAddVariable_Click);
+			dlgAddVariable = Popup.createDialog();
+			e = Elem.create("div", dlgAddVariable);
+			d = Elem.createLabel(Asm86UI.NAME, e);
+			Elem.addStyle(d, "TXTLBL");
+			Elem.space(e);
+			txtVarName = Elem.createTextInput(e);
+			txtVarName.style.width = Elem.em2spx(15);
+			txtVarName.maxLength = 64;
+			Elem.setLabelledBy(d, txtVarName);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "SEP";
+			e = Elem.create("div", dlgAddVariable);
+			chkVarSize1.createControl(e);
+			Elem.br(e);
+			chkVarSize2.createControl(e);
+			Elem.br(e);
+			chkVarSize4.createControl(e);
+			Elem.br(e);
+			d = Elem.createLabel(Asm86UI.INITIAL_VALUE, e);
+			Elem.addStyle(d, "TXTLBL");
+			Elem.space(e);
+			txtVarInitialValue = Elem.createTextInput(e);
+			txtVarInitialValue.style.width = Elem.em2spx(20);
+			Elem.setLabelledBy(d, txtVarInitialValue);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "SEP";
+			e = Elem.create("div", dlgAddVariable);
+			d = chkVarSizeArray.createControl(e);
+			Elem.addStyle(d.chk, "TXTLBL");
+			d.chk.style.width = Elem.em2spx(12);
+			e2 = txtVarSize.createControl(5.5, 4, e);
+			Elem.setLabelledBy(d.chk, e2.nud);
+			Elem.space(e);
+			Elem.createLabel("bytes", e);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "_MT4 _MB4";
+			d = chkVarSizeArrayFill.createControl(e);
+			Elem.addStyle(d.chk, "TXTLBL");
+			d.chk.style.width = Elem.em2spx(12);
+			txtVarArray = Elem.createTextInput(e);
+			txtVarArray.style.width = Elem.em2spx(20);
+			Elem.setLabelledBy(d.chk, txtVarArray);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "NOTE _MT4 _MB4";
+			Elem.text(Asm86UI.ARRAY_HINT, e);
+			e = Elem.create("div", dlgAddVariable);
+			d = chkVarSizeString.createControl(e);
+			Elem.addStyle(d.chk, "TXTLBL");
+			d.chk.style.width = Elem.em2spx(12);
+			txtVarString = Elem.createTextInput(e);
+			txtVarString.style.width = Elem.em2spx(20);
+			Elem.setLabelledBy(d.chk, txtVarString);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "NOTE _MT4 _MB4";
+			Elem.text(Asm86UI.ARRAY_TEXT_HINT, e);
+			e = Elem.create("div", dlgAddVariable);
+			e.className = "DLGBTNCONTAINER";
+			Elem.createButton(Asm86UI.ADD, e, btnCreateVar_Click);
+			Elem.addStyle(Elem.createButton(Asm86UI.CANCEL, e, btnCancelVar_Click), "_ML4");
+
+			panelMsgReg = $("panelMsgReg");
+			Elem.text(Asm86UI.NOT_UPDATED, panelMsgReg.firstChild);
+			tdEAX = $("tdEAX");
+			tdEBX = $("tdEBX");
+			tdECX = $("tdECX");
+			tdEDX = $("tdEDX");
+			tdESI = $("tdESI");
+			tdEDI = $("tdEDI");
+			tdEBP = $("tdEBP");
+			tdESP = $("tdESP");
+			tdEIP = $("tdEIP");
+			tdEIPx = $("tdEIPx");
+			tdEAX._regMode = 0;
+			tdEBX._regMode = 0;
+			tdECX._regMode = 0;
+			tdEDX._regMode = 0;
+			tdESI._regMode = 0;
+			tdEDI._regMode = 0;
+			tdEBP._regMode = 0;
+			tdESP._regMode = 0;
+			tdEIP._regMode = 0;
+			tdEAX._reg = emulator.registers.eax;
+			tdEBX._reg = emulator.registers.ebx;
+			tdECX._reg = emulator.registers.ecx;
+			tdEDX._reg = emulator.registers.edx;
+			tdESI._reg = emulator.registers.esi;
+			tdEDI._reg = emulator.registers.edi;
+			tdEBP._reg = emulator.registers.ebp;
+			tdESP._reg = emulator.registers.esp;
+			tdEIP._reg = emulator.registers.eip;
+			attachMouse(tdEAX, "click", tdReg_Click);
+			attachMouse(tdEBX, "click", tdReg_Click);
+			attachMouse(tdECX, "click", tdReg_Click);
+			attachMouse(tdEDX, "click", tdReg_Click);
+			attachMouse(tdESI, "click", tdReg_Click);
+			attachMouse(tdEDI, "click", tdReg_Click);
+			attachMouse(tdEBP, "click", tdReg_Click);
+			attachMouse(tdESP, "click", tdReg_Click);
+			attachMouse(tdEIP, "click", tdReg_Click);
+			tdFlagCarry = $("tdFlagCarry");
+			tdFlagDir = $("tdFlagDir");
+			tdFlagI = $("tdFlagI");
+			tdFlagOv = $("tdFlagOv");
+			tdFlagSign = $("tdFlagSign");
+			tdFlagZ = $("tdFlagZ");
+			lastEAX = emulator.registers.eax.get();
+			lastEBX = emulator.registers.ebx.get();
+			lastECX = emulator.registers.ecx.get();
+			lastEDX = emulator.registers.edx.get();
+			lastESI = emulator.registers.esi.get();
+			lastEDI = emulator.registers.edi.get();
+			lastEBP = emulator.registers.ebp.get();
+			lastESP = emulator.registers.esp.get();
+			lastEIP = emulator.registers.eip.get();
+			lastFlagCarry = emulator.getFlagCarry();
+			lastFlagDir = emulator.getFlagDir();
+			lastFlagI = emulator.getFlagI();
+			lastFlagOv = emulator.getFlagOv();
+			lastFlagSign = emulator.getFlagSign();
+			lastFlagZ = emulator.getFlagZ();
+			refreshRegisters();
+
+			attachMouse($("btnH0"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH1"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH2"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH3"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH4"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH5"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH6"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH7"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH8"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnH9"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHA"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHB"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHC"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHD"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHE"), "mousedown", btnH_MouseDown);
+			attachMouse($("btnHF"), "mousedown", btnH_MouseDown);
+			ledsOn = [$("led0On"), $("led1On"), $("led2On"), $("led3On"), $("led4On"), $("led5On"), $("led6On"), $("led7On")];
+			ledsOff = [$("led0Off"), $("led1Off"), $("led2Off"), $("led3Off"), $("led4Off"), $("led5Off"), $("led6Off"), $("led7Off")];
+		}
+		//]]>
+	</script>
+</head>
+<body>
+<div class="MainContainer" role="application" id="_B0" style="min-width: 720px;"><div class="PageCaption" role="banner" id="_B1"></div><div class="InnerContainer" role="main" id="_B2"><script type="text/javascript">//<![CDATA[
+"use strict"; BasicLayout.header(true); //]]></script>
+	<div id="mnuLanguage" class="ITCONT FPOP _HID _PA4">
+		<a class="LNK MNULNK _MT2" href="index.html?language=en" style="color: #000;">English</a>
+		<a class="LNK MNULNK _MT2" href="index.html?language=pt-br" style="color: #000;">Português</a>
+	</div>
+	<div class="_ML4 _MR4" role="toolbar" id="tlbMain"><div class="BTN BTNTLB" id="btnRun"></div><div class="BTN BTNTLB _HID" aria-hidden="true" id="btnPause"></div> <div class="BTN BTNTLB" id="btnStep"></div><div class="TLBSEP"></div><div class="BTN BTNTLB" id="btnReset"></div>
+	<div class="LBL TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" style="padding-top: 0px; padding-bottom: 0px;" id="lblStepping"></div><div class="LBL TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" style="padding-top: 0px; padding-bottom: 0px;" id="lblRunning"></div>
+	<div style="display: inline-block; float: right;"><div class="BTN BTNTLB" id="btnCompile"></div><div class="BTN BTNTLB" id="btnWindows"></div><div class="TLBSEP"></div><div class="BTN BTNTLB" id="btnAbout">...</div></div></div>
+	<div id="mnuWindows" class="ITCONT FPOP _HID _PA4">
+		<div id="chkShowVariables"></div>
+		<div id="chkShowRegisters"></div>
+		<div id="chkShowEEPROM"></div>
+		<div id="chkShowHardware"></div>
+		<div id="chkShowConsole"></div>
+		<div class="SEPMNU"></div>
+		<div id="chkShadow"></div>
+	</div>
+	<textarea id="codeEditor" class="MONO" spellcheck="false"></textarea>
+	<div id="panelMsg" class="EMPTY_CONTAINER"><div class="LBL CLK _HID" role="button" aria-hidden="true" id="btnLine"></div><div class="LBL MSG _HID" aria-hidden="true" role="status" id="lblMsg"></div><div class="LBL CLK _HID" role="button" aria-hidden="true" id="btnCloseMsg">&times;</div></div>
+	<div id="dlgVariables" class="_HID" aria-hidden="true">
+		<div id="panelMsgVar" class="TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" role="status"><div class="LBL" style="height: auto;"></div></div>
+		<div style="max-height: 25em; overflow-x: hidden; overflow-y: scroll;" class="_MB4"><table class="MONO" id="tbVariables">
+			<thead class="BOLD"><tr><td></td><td class="CLK _PA4" role="button" id="btnVarSortByName"></td><td class="CLK _PA4" role="button" id="btnVarSortBySize"></td><td class="_PA4" id="btnVarSortByValue"></td><td class="CLK _PA4" role="button" id="btnVarSortByAddress"></td></tr></thead>
+		</table></div>
+		<div><div id="btnAddVariable" class="BTN"></div></div>
+	</div>
+	<div id="dlgRegisters" class="_HID" aria-hidden="true">
+		<div id="panelMsgReg" class="TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" role="status"><div class="LBL" style="height: auto;"></div></div>
+		<table class="MONO _BS4">
+			<tr><td class="BOLD">EAX&nbsp;&nbsp;</td><td class="CLK" id="tdEAX">0x00000000</td><td>&nbsp;&nbsp;</td><td class="BOLD">EBX&nbsp;&nbsp;</td><td class="CLK" id="tdEBX">0x00000000</td></tr>
+			<tr><td class="BOLD">ECX&nbsp;&nbsp;</td><td class="CLK" id="tdECX">0x00000000</td><td>&nbsp;&nbsp;</td><td class="BOLD">EDX&nbsp;&nbsp;</td><td class="CLK" id="tdEDX">0x00000000</td></tr>
+			<tr><td class="BOLD">ESI&nbsp;&nbsp;</td><td class="CLK" id="tdESI">0x00000000</td><td>&nbsp;&nbsp;</td><td class="BOLD">EDI&nbsp;&nbsp;</td><td class="CLK" id="tdEDI">0x00000000</td></tr>
+			<tr><td class="BOLD">EBP&nbsp;&nbsp;</td><td class="CLK" id="tdEBP">0x00000000</td><td>&nbsp;&nbsp;</td><td class="BOLD">ESP&nbsp;&nbsp;</td><td class="CLK" id="tdESP">0x00000000</td></tr>
+			<tr><td class="BOLD">EIP&nbsp;&nbsp;</td><td class="CLK" id="tdEIP">0x00000000</td><td id="tdEIPx" colspan="3"></td></tr>
+		</table>
+		<div class="SEP"></div>
+		<table class="MONO _BS4">
+			<tr><td class="BOLD" colspan="5">Flags</td></tr>
+			<tr><td class="BOLD">Carry&nbsp;&nbsp;</td><td id="tdFlagCarry"></td><td>&nbsp;&nbsp;</td><td class="BOLD">Dir&nbsp;&nbsp;</td><td id="tdFlagDir"></td></tr>
+			<tr><td class="BOLD">Int&nbsp;&nbsp;</td><td id="tdFlagI"></td><td>&nbsp;&nbsp;</td><td class="BOLD">Overflow&nbsp;&nbsp;</td><td id="tdFlagOv"></td></tr>
+			<tr><td class="BOLD">Sign&nbsp;&nbsp;</td><td id="tdFlagSign"></td><td>&nbsp;&nbsp;</td><td class="BOLD">Zero&nbsp;&nbsp;</td><td id="tdFlagZ"></td></tr>
+		</table>
+	</div>
+	<div id="dlgEEPROM" class="_HID" aria-hidden="true">
+		<div id="panelMsgEEPROM" class="TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" role="status"><div class="LBL" style="height: auto;"></div></div>
+	</div>
+	<div id="dlgHardware" class="_HID" aria-hidden="true">
+		<div><div class="BTN BTNHARD" id="btnH0">0</div><div class="BTN BTNHARD" id="btnH1">1</div><div class="BTN BTNHARD" id="btnH2">2</div><div class="BTN BTNHARD" id="btnH3">3</div></div>
+		<div><div class="BTN BTNHARD" id="btnH4">4</div><div class="BTN BTNHARD" id="btnH5">5</div><div class="BTN BTNHARD" id="btnH6">6</div><div class="BTN BTNHARD" id="btnH7">7</div></div>
+		<div><div class="BTN BTNHARD" id="btnH8">8</div><div class="BTN BTNHARD" id="btnH9">9</div><div class="BTN BTNHARD" id="btnHA">A</div><div class="BTN BTNHARD" id="btnHB">B</div></div>
+		<div><div class="BTN BTNHARD" id="btnHC">C</div><div class="BTN BTNHARD" id="btnHD">D</div><div class="BTN BTNHARD" id="btnHE">E</div><div class="BTN BTNHARD" id="btnHF">F</div></div>
+		<div class="SEP"></div>
+		<div class="_TAC">
+			<img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led0On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led0Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led1On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led1Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led2On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led2Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led3On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led3Off"/><br />
+			<img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led4On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led4Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led5On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led5Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led6On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led6Off"/><img class="LED _HID" aria-hidden="true" alt="LED" src="images/Asm86On.png" width="48" height="48" id="led7On"/><img class="LED" alt="LED" src="images/Asm86Off.png" width="48" height="48" id="led7Off"/>
+		</div>
+	</div>
+	<div id="dlgConsole" class="_HID" aria-hidden="true"></div>
+
+	<div class="_HID" id="dlgAboutInner" aria-hidden="true"><p>Emulador e compilador: <a target="_blank" href="Asm86.js">Asm86.js</a> e <a target="_blank" href="Asm86Language.js">Asm86Language.js</a> (Também no GitHub: <a target="_blank" href="https://github.com/carlosrafaelgn/Asm86">github.com/carlosrafaelgn/Asm86</a>)</p>
+<p>Editor de código: CodeMirror (Disponível em <a target="_blank" href="http://codemirror.net/">codemirror.net</a>)</p>
+<p>Referência para as instruções e arquitetura originais (em inglês):<br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-1-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 1 - Basic Architecture (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2A: Instruction Set Reference, A-M (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2b-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2B: Instruction Set Reference, N-Z (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2c-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2C: Instruction Set Reference (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3A: System Programming Guide, Part 1 (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3b-part-2-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3B: System Programming Guide, Part 2 (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3c-part-3-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3C: System Programming Guide, Part 3 (June 2013)</a></p>
+	</div>
+	<div class="_HID" id="dlgAboutInneren" aria-hidden="true"><p>Emulator and compiler: <a target="_blank" href="Asm86.js">Asm86.js</a> and <a target="_blank" href="Asm86Language.js">Asm86Language.js</a> (Also on GitHub: <a target="_blank" href="https://github.com/carlosrafaelgn/Asm86">github.com/carlosrafaelgn/Asm86</a>)</p>
+<p>Code editor: CodeMirror (Available at <a target="_blank" href="http://codemirror.net/">codemirror.net</a>)</p>
+<p>Reference for the original instructions and architecture:<br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-1-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 1 - Basic Architecture (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2a-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2A: Instruction Set Reference, A-M (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2b-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2B: Instruction Set Reference, N-Z (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-2c-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 2C: Instruction Set Reference (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3A: System Programming Guide, Part 1 (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3b-part-2-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3B: System Programming Guide, Part 2 (June 2013)</a><br />
+<a target="_blank" href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3c-part-3-manual.html">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume Volume 3C: System Programming Guide, Part 3 (June 2013)</a></p>
+	</div>
+
+</div><div role="contentinfo" id="_B3"></div></div><script type="text/javascript">//<![CDATA[
+"use strict"; BasicLayout.footer(); //]]></script>
+</body>
+</html>
