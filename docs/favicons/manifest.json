@@ -8,7 +8,7 @@
 	"display": "fullscreen",
 	"background_color": "#222222",
 	"theme_color": "#222222",
-	"description": "Assembly x86 Emulator",
+	"description": "A JavaScript assembly x86 compiler + emulator for educational purposes.",
 	"icons": [
 		{
 			"src": "favicon-36x36.png",
