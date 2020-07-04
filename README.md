@@ -3,7 +3,7 @@ Asm86
 
 This is a JavaScript assembly x86 compiler and emulator for educational purposes. I use it in my classes on Computer Architecture.
 
-The project site, [carlosrafaelgn.com.br/Asm86](https://carlosrafaelgn.com.br/Asm86), can be used as an example (in English). It uses [CodeMirror](https://codemirror.net) as the code editor.
+The project sites [carlosrafaelgn.github.io/Asm86](http://carlosrafaelgn.github.io/Asm86/) and [carlosrafaelgn.com.br/Asm86](https://carlosrafaelgn.com.br/Asm86/) can be used as examples of how to use this library. They use [CodeMirror](https://github.com/codemirror/codemirror) as the code editor, licensed under the [MIT License](https://github.com/codemirror/CodeMirror/blob/master/LICENSE).
 
 The script adds only three names to the global namespace: Asm86EmulatorContext, Asm86EmulatorCompiler and Asm86Emulator. However, creating instances of Asm86EmulatorContext and Asm86EmulatorCompiler will not be so usefull.
 
