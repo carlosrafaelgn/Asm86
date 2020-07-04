@@ -42,6 +42,8 @@ self.addEventListener("install", (event) => {
 		const files = [
 			"/Asm86/",
 			"/Asm86/?pwa",
+			"/Asm86/?language=en",
+			"/Asm86/?language=pt-br",
 			"/Asm86/Asm86.js",
 			"/Asm86/Asm86Language.js",
 			"/Asm86/Asm86Sample.txt",
@@ -129,9 +131,9 @@ self.addEventListener("fetch", (event) => {
 
 	// Try to always use a fresh copy of the main pages
 	if (url.endsWith("/Asm86/") ||
-		url.endsWith("/asm86/") ||
 		url.endsWith("/Asm86/?pwa") ||
-		url.endsWith("/asm86/?pwa") ||
+		url.endsWith("/Asm86/?language=en") ||
+		url.endsWith("/Asm86/?language=pt-br") ||
 		// Debug only
 		url.startsWith("http://localhost")) {
 		event.respondWith(fetch(url).then((response) => {
@@ -143,7 +145,7 @@ self.addEventListener("fetch", (event) => {
 	}
 
 	event.respondWith(caches.open(CACHE_NAME).then((cache) => {
-		return cache.match(url).then((response) => {
+		return cache.match(event.request).then((response) => {
 			// Return the resource if it has been found.
 			if (response)
 				return response;
