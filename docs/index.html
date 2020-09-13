@@ -51,10 +51,11 @@
 	<script type="text/javascript" charset="utf-8" src="Asm86.js"></script>
 	<script type="text/javascript" charset="utf-8" src="Asm86Language.js"></script>
 
-	<link rel="stylesheet" href="codeMirror/codemirror.css" />
-	<script type="text/javascript" charset="utf-8" src="codeMirror/codemirror.js"></script>
+	<link rel="stylesheet" href="codeMirror/codemirror-5.57.0.css" />
+	<link rel="stylesheet" href="codeMirror/codemirror-custom-5.57.0.css" />
+	<script type="text/javascript" charset="utf-8" src="codeMirror/codemirror-5.57.0.js"></script>
 	<script type="text/javascript" charset="utf-8" src="codeMirror/Asm86.js"></script>
-	<script type="text/javascript" charset="utf-8" src="codeMirror/active-line.js"></script>
+	<script type="text/javascript" charset="utf-8" src="codeMirror/active-line-5.57.0.js"></script>
 
 	<style type="text/css">
 		.ERROR_CONTAINER {
@@ -1442,6 +1443,11 @@
 			emulator.onVariableRemoved.attach(emulator_VariableRemoved);
 			currentLineMarker = makeCurrentLineMarker();
 			codeEditor = $("codeEditor");
+			e = document.createElement("div");
+			e.style.position = "absolute";
+			e.style.padding = "0px";
+			codeEditor.parentNode.replaceChild(e, codeEditor);
+			e.appendChild(codeEditor);
 			if (pageOptions.noeditor !== "true") {
 				editor = CodeMirror.fromTextArea(codeEditor, {
 					lineNumbers: true,
@@ -1461,13 +1467,8 @@
 				codeEditor = editor.getWrapperElement();
 				codeEditor.id = "codeEditor";
 				editor.on("gutterClick", editor_GutterClick);
-				e = codeEditor;
+				e.style.bottom = (Elem.controlHeight + 2) + "px";
 			} else {
-				e = document.createElement("div");
-				e.style.position = "absolute";
-				e.style.padding = "0px";
-				codeEditor.parentNode.replaceChild(e, codeEditor);
-				e.appendChild(codeEditor);
 				codeEditor.style.fontSize = "14px";
 				codeEditor.style.boxShadow = "none";
 				codeEditor.style.borderColor = "#dcbe67";
@@ -1479,11 +1480,12 @@
 				codeEditor.style.padding = "0px 0px 0px 4px";
 				codeEditor.wrap = "off"; //ugly... but what can I do...?
 				attachObserver(codeEditor, "change", codeEditor_Change);
+				e.style.bottom = (Elem.controlHeight + 1) + "px";
 			}
 			editor_MarkClean();
+			e.style.zIndex = 0;
 			e.style.top = ((4 << 1) + Elem.controlHeight) + "px";
 			e.style.right = "0px";
-			e.style.bottom = (Elem.controlHeight + 1) + "px";
 			e.style.left = "0px";
 			Elem.text(Asm86UI.RUN, (btnRun = $("btnRun")));
 			Elem.text(Asm86UI.PAUSE, (btnPause = $("btnPause")));

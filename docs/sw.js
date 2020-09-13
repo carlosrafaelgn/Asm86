@@ -6,7 +6,7 @@
 // whenever it detects a change in the source code of the
 // service worker).
 const CACHE_PREFIX = "asm86-static-cache";
-const CACHE_VERSION = "-v1";
+const CACHE_VERSION = "-v2";
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 self.addEventListener("install", (event) => {
@@ -18,8 +18,8 @@ self.addEventListener("install", (event) => {
 	// event.waitUntil(). Calling event.waitUntil() forces
 	// the installation process to be marked as finished
 	// only when all promises passed to waitUntil() finish.
-	//
-	// self.skipWaiting();
+
+	self.skipWaiting();
 
 	event.waitUntil(caches.open(CACHE_NAME).then((cache) => {
 		// According to the spec, the service worker file
