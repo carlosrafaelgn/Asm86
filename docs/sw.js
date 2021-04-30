@@ -6,7 +6,7 @@
 // whenever it detects a change in the source code of the
 // service worker).
 const CACHE_PREFIX = "asm86-static-cache";
-const CACHE_VERSION = "-v2";
+const CACHE_VERSION = "-20210430";
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 self.addEventListener("install", (event) => {
@@ -41,17 +41,14 @@ self.addEventListener("install", (event) => {
 		// cache.addAll() to this.
 		const files = [
 			"/Asm86/",
-			"/Asm86/?pwa",
 			"/Asm86/?language=en",
 			"/Asm86/?language=pt-br",
 			"/Asm86/Asm86.js",
 			"/Asm86/Asm86Language.js",
 			"/Asm86/Asm86Sample.txt",
 			"/Asm86/Asm86SampleEn.txt",
-			"/Asm86/main.css",
+			"/Asm86/main.js",
 			"/Asm86/mainnr.css",
-			"/Asm86/maint.css",
-			"/Asm86/maintnr.css",
 			"/Asm86/favicons/favicon.ico",
 			"/Asm86/favicons/favicon.png",
 			"/Asm86/favicons/favicon-512x512.png",

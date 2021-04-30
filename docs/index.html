@@ -22,6 +22,9 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<meta name="apple-mobile-web-app-title" content="Assembly x86 Emulator" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="mobile-web-app-status-bar-style" content="black" />
+	<meta name="mobile-web-app-title" content="Assembly x86 Emulator" />
 	<link rel="apple-touch-icon" sizes="57x57" href="favicons/apple-icon-57x57.png" />
 	<link rel="apple-touch-icon" sizes="60x60" href="favicons/apple-icon-60x60.png" />
 	<link rel="apple-touch-icon" sizes="72x72" href="favicons/apple-icon-72x72.png" />
@@ -45,14 +48,17 @@
 
 	<title>Assembly x86 Emulator</title>
 
+	<link rel="stylesheet" type="text/css" href="mainnr.css" />
+
+	<link rel="stylesheet" type="text/css" href="codeMirror/codemirror-5.57.0.css" />
+	<link rel="stylesheet" type="text/css" href="codeMirror/codemirror-custom-5.57.0.css" />
+
 	<script type="text/javascript">//<![CDATA[
 	"use strict"; window._isFullScreen = 2; //]]></script>
 	<script type="text/javascript" charset="utf-8" src="main.js"></script>
 	<script type="text/javascript" charset="utf-8" src="Asm86.js"></script>
 	<script type="text/javascript" charset="utf-8" src="Asm86Language.js"></script>
 
-	<link rel="stylesheet" href="codeMirror/codemirror-5.57.0.css" />
-	<link rel="stylesheet" href="codeMirror/codemirror-custom-5.57.0.css" />
 	<script type="text/javascript" charset="utf-8" src="codeMirror/codemirror-5.57.0.js"></script>
 	<script type="text/javascript" charset="utf-8" src="codeMirror/Asm86.js"></script>
 	<script type="text/javascript" charset="utf-8" src="codeMirror/active-line-5.57.0.js"></script>
@@ -138,10 +144,12 @@
 						o[unescape(kv[0])] = ((kv.length > 1) ? unescape(kv[1]) : "");
 					}
 				}
-				if (o.language)
+				if (o.language) {
 					o.language = o.language.toLowerCase();
-				else
-					o.language = "en";
+				} else {
+					o.language = (navigator["userLanguage"] || navigator.language);
+					o.language = ((o.language && o.language.toLowerCase().indexOf("pt") === 0) ? "pt-br" : "en");
+				}
 				return o;
 			})();
 		if (!window.URL)
@@ -1802,7 +1810,7 @@
 	</div>
 	<div class="_ML4 _MR4" role="toolbar" id="tlbMain"><div class="BTN BTNTLB" id="btnRun"></div><div class="BTN BTNTLB _HID" aria-hidden="true" id="btnPause"></div> <div class="BTN BTNTLB" id="btnStep"></div><div class="TLBSEP"></div><div class="BTN BTNTLB" id="btnReset"></div>
 	<div class="LBL TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" style="padding-top: 0px; padding-bottom: 0px;" id="lblStepping"></div><div class="LBL TLB INFO_CONTAINER_FULL _HID" aria-hidden="true" style="padding-top: 0px; padding-bottom: 0px;" id="lblRunning"></div>
-	<div style="display: inline-block; float: right;"><div class="BTN BTNTLB" id="btnCompile"></div><div class="BTN BTNTLB" id="btnWindows"></div><div class="TLBSEP"></div><div class="BTN BTNTLB" id="btnAbout">...</div></div></div>
+	<div style="float: right;"><div class="BTN BTNTLB" id="btnCompile"></div><div class="BTN BTNTLB" id="btnWindows"></div><div class="TLBSEP"></div><div class="BTN BTNTLB" id="btnAbout">...</div></div></div>
 	<div id="mnuWindows" class="ITCONT FPOP _HID _PA4">
 		<div id="chkShowVariables"></div>
 		<div id="chkShowRegisters"></div>

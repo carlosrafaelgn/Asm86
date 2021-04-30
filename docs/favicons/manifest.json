@@ -1,7 +1,7 @@
 {
 	"name": "Assembly x86 Emulator",
 	"short_name": "Assembly x86 Emulator",
-	"start_url": "/Asm86/?pwa",
+	"start_url": "/Asm86/",
 	"dir": "ltr",
 	"lang": "en-US",
 	"orientation": "landscape-primary",
