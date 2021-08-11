@@ -717,7 +717,7 @@ Asm86Compiler.prototype = {
 			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.OPERATOR_CANNOT_HAVE_PREFIX, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
 			return null;
 		}
-		var count = operatorToken.value.operandCount, op1, op2;
+		var count = operatorToken.value.operandCount, op1, op2, line, lineIndex, index;
 		if (!count) {
 			Asm86Compiler.prototype._addInstruction(parserContext, operatorToken.value, undefined, undefined, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
 			return null;
@@ -732,20 +732,29 @@ Asm86Compiler.prototype = {
 				op1 = undefined;
 			}
 		} else {
-			if (count >= 1) op1 = Asm86Compiler.prototype._parseOperand(parserContext, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
+			line = parserContext.line;
+			lineIndex = parserContext.index - parserContext.lineStartIndex;
+			index = parserContext.index;
+			if (count >= 1) op1 = Asm86Compiler.prototype._parseOperand(parserContext, line, lineIndex, index);
 			if (!op1) return null;
 		}
 		if (count === 1) {
 			Asm86Compiler.prototype._addInstruction(parserContext, operatorToken.value, op1, undefined, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
 			return null;
 		}
+		line = parserContext.line;
+		lineIndex = parserContext.index - parserContext.lineStartIndex;
+		index = parserContext.index;
 		op2 = Asm86Compiler.prototype._getNextToken(parserContext);
 		if (!op2 || op2.type !== Asm86Compiler.prototype.TYPE_COMMA) {
 			parserContext.errorOccurred = true;
-			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.COMMA_EXPECTED, op2.line, op2.lineIndex, op2.index);
+			parserContext.compilerErrorNotificationFunction(Asm86Emulator.prototype.MESSAGES.COMMA_EXPECTED, line, lineIndex, index);
 			return null;
 		}
-		op2 = Asm86Compiler.prototype._parseOperand(parserContext, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
+		line = parserContext.line;
+		lineIndex = parserContext.index - parserContext.lineStartIndex;
+		index = parserContext.index;
+		op2 = Asm86Compiler.prototype._parseOperand(parserContext, line, lineIndex, index);
 		if (op2) Asm86Compiler.prototype._addInstruction(parserContext, operatorToken.value, op1, op2, operatorToken.line, operatorToken.lineIndex, operatorToken.index);
 		return null;
 	},

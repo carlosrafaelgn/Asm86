@@ -6,7 +6,7 @@
 // whenever it detects a change in the source code of the
 // service worker).
 const CACHE_PREFIX = "asm86-static-cache";
-const CACHE_VERSION = "-20210515";
+const CACHE_VERSION = "-20210811";
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 self.addEventListener("install", (event) => {
