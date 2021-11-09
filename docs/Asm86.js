@@ -2119,7 +2119,7 @@ Asm86Emulator.prototype.OP = {
 				ctx.flagCarry = 0;
 				ctx.flagZ = 1;
 			}
-			ctx.flagOv = 0;
+			Asm86Emulator.prototype._flagOvSub(ctx, 0, a, r, op1.size);
 			return Asm86Emulator.prototype._flagSign(ctx, r, op1.size);
 		}
 	},
